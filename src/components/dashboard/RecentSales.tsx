@@ -1,76 +1,92 @@
-import {
-  ShoppingBag,
-} from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 
-const sales = [
-  {
-    id: "#INV-2401",
-    customer: "John Smith",
-    amount: "$248",
-  },
-  {
-    id: "#INV-2402",
-    customer: "Sarah James",
-    amount: "$182",
-  },
-  {
-    id: "#INV-2403",
-    customer: "Michael Lee",
-    amount: "$94",
-  },
-  {
-    id: "#INV-2404",
-    customer: "Grace Wilson",
-    amount: "$521",
-  },
-];
+import { useRecentSales } from "@/queries/useDashboard";
 
 export default function RecentSales() {
+  const { data = [], isLoading } = useRecentSales();
+
+  if (isLoading) {
+    return (
+      <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
+        <div className="space-y-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-16 animate-pulse rounded-2xl bg-[var(--surface-hover)]"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
 
-      <h2 className="mb-6 text-xl font-bold">
-        Recent Sales
-      </h2>
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-[var(--text)]">
+          Recent Sales
+        </h2>
 
-      <div className="space-y-5">
+        <p className="mt-1 text-sm text-[var(--text-secondary)]">
+          Latest completed transactions
+        </p>
+      </div>
 
-        {sales.map((sale)=>(
-          <div
-            key={sale.id}
-            className="flex items-center justify-between rounded-2xl p-3 transition hover:bg-slate-50"
-          >
+      {data.length === 0 ? (
+        <div className="py-10 text-center text-[var(--text-secondary)]">
+          No recent sales found.
+        </div>
+      ) : (
+        <div className="space-y-4">
 
-            <div className="flex items-center gap-4">
+          {data.map((sale) => (
 
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
+            <div
+              key={sale.invoice_number}
+              className="flex items-center justify-between rounded-2xl p-3 transition hover:bg-[var(--surface-hover)]"
+            >
 
-                <ShoppingBag className="text-blue-600"/>
+              <div className="flex items-center gap-4">
+
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30">
+
+                  <ShoppingBag className="text-blue-600" />
+
+                </div>
+
+                <div>
+
+                  <p className="font-semibold text-[var(--text)]">
+                    {sale.customer || "Walk-in Customer"}
+                  </p>
+
+                  <p className="text-sm text-[var(--text-secondary)]">
+                    {sale.invoice_number}
+                  </p>
+
+                </div>
 
               </div>
 
-              <div>
+              <div className="text-right">
 
-                <p className="font-semibold">
-                  {sale.customer}
-                </p>
+                <h3 className="font-bold text-[var(--text)]">
+                  ${sale.amount.toLocaleString()}
+                </h3>
 
-                <p className="text-sm text-slate-500">
-                  {sale.id}
+                <p className="text-xs capitalize text-[var(--text-secondary)]">
+                  {sale.payment_method}
                 </p>
 
               </div>
 
             </div>
 
-            <h3 className="font-bold">
-              {sale.amount}
-            </h3>
+          ))}
 
-          </div>
-        ))}
-
-      </div>
+        </div>
+      )}
 
     </div>
   );

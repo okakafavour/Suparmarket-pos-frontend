@@ -18,17 +18,61 @@ import Logo from "./Logo";
 import SidebarItem from "./SidebarItem";
 
 const menu = [
-  { title: "Dashboard", icon: LayoutDashboard, active: true },
-  { title: "Inventory", icon: Boxes },
-  { title: "Products", icon: Package },
-  { title: "Sales", icon: ShoppingCart },
-  { title: "Customers", icon: Users },
-  { title: "Suppliers", icon: Truck },
-  { title: "Purchases", icon: ClipboardList },
-  { title: "Payments", icon: CreditCard },
-  { title: "Reports", icon: BarChart3 },
-  { title: "Users", icon: Shield },
-  { title: "Settings", icon: Settings },
+  {
+    title: "Dashboard",
+    icon: LayoutDashboard,
+    path: "/dashboard",
+  },
+  {
+    title: "Inventory",
+    icon: Boxes,
+    path: "/inventory",
+  },
+  {
+    title: "Products",
+    icon: Package,
+    path: "/products",
+  },
+  {
+    title: "Sales",
+    icon: ShoppingCart,
+    path: "/sales",
+  },
+  {
+    title: "Customers",
+    icon: Users,
+    path: "/customers",
+  },
+  {
+    title: "Suppliers",
+    icon: Truck,
+    path: "/suppliers",
+  },
+  {
+    title: "Purchases",
+    icon: ClipboardList,
+    path: "/purchases",
+  },
+  {
+    title: "Payments",
+    icon: CreditCard,
+    path: "/payments",
+  },
+  {
+    title: "Reports",
+    icon: BarChart3,
+    path: "/reports",
+  },
+  {
+    title: "Users",
+    icon: Shield,
+    path: "/users",
+  },
+  {
+    title: "Settings",
+    icon: Settings,
+    path: "/settings",
+  },
 ];
 
 export default function Sidebar() {
@@ -39,62 +83,64 @@ export default function Sidebar() {
   }`.toUpperCase();
 
   return (
-    <aside
-      className="
-        fixed
-        left-5
-        top-5
-        bottom-5
-        hidden
-        w-72
-        lg:block
-      "
-    >
-      <div className="flex h-full flex-col rounded-[28px] bg-slate-950 p-6 shadow-2xl">
-
+    <aside className="fixed inset-y-5 left-5 hidden w-72 lg:block">
+      <div
+        className="
+          flex
+          h-full
+          flex-col
+          rounded-[32px]
+          border
+          border-[color:var(--border)]
+          bg-[color:var(--surface)]
+          p-7
+          shadow-[var(--shadow-lg)]
+          transition-all
+          duration-300
+        "
+      >
         <Logo />
 
-        <nav className="mt-10 flex-1 space-y-2 overflow-y-auto pr-1">
-
+        <nav className="mt-10 flex-1 space-y-2">
           {menu.map((item) => (
             <SidebarItem
               key={item.title}
               title={item.title}
               icon={item.icon}
-              active={item.active}
+              path={item.path}
             />
           ))}
-
         </nav>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-
+        <div
+          className="
+            mt-8
+            rounded-3xl
+            border
+            border-[color:var(--border)]
+            bg-[color:var(--background)]
+            p-4
+            transition-all
+          "
+        >
           <div className="flex items-center gap-3">
-
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 font-bold text-white">
-
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-sm font-bold text-white">
               {initials}
-
             </div>
 
-            <div>
-
-              <h4 className="font-semibold text-white">
+            <div className="min-w-0 flex-1">
+              <h4 className="truncate font-semibold text-[color:var(--text)]">
                 {user?.first_name} {user?.last_name}
               </h4>
 
-              <p className="text-sm capitalize text-slate-400">
+              <p className="truncate text-sm capitalize text-[color:var(--text-muted)]">
                 {user?.role}
               </p>
-
             </div>
 
-            <span className="ml-auto h-3 w-3 rounded-full bg-emerald-500" />
-
+            <span className="h-3 w-3 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" />
           </div>
-
         </div>
-
       </div>
     </aside>
   );

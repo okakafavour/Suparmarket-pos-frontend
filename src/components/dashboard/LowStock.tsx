@@ -1,68 +1,109 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Package2 } from "lucide-react";
 
-const products = [
-  {
-    name: "Coca Cola 50cl",
-    stock: 4,
-  },
-  {
-    name: "Peak Milk",
-    stock: 2,
-  },
-  {
-    name: "Golden Penny Spaghetti",
-    stock: 5,
-  },
-  {
-    name: "Bournvita",
-    stock: 3,
-  },
-];
+import { useLowStockProducts } from "@/queries/useDashboard";
 
 export default function LowStock() {
+  const { data = [], isLoading } = useLowStockProducts();
+
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
 
-      <div className="mb-6 flex items-center gap-3">
+      <div className="mb-6 flex items-center justify-between">
 
-        <AlertTriangle className="text-orange-500" />
+        <div className="flex items-center gap-3">
 
-        <h2 className="text-xl font-bold">
-          Low Stock
-        </h2>
+          <AlertTriangle className="text-orange-500" />
+
+          <h2 className="text-xl font-bold text-[var(--text)]">
+            Low Stock Products
+          </h2>
+
+        </div>
+
+        <span className="rounded-full bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-600">
+          {data.length}
+        </span>
 
       </div>
 
-      <div className="space-y-4">
+      {isLoading ? (
 
-        {products.map((item) => (
+        <div className="space-y-3">
 
-          <div
-            key={item.name}
-            className="flex items-center justify-between rounded-2xl border border-slate-100 p-4 transition hover:bg-slate-50"
-          >
+          {[1, 2, 3].map((item) => (
+            <div
+              key={item}
+              className="h-20 animate-pulse rounded-2xl bg-[var(--surface-hover)]"
+            />
+          ))}
 
-            <div>
+        </div>
 
-              <h3 className="font-semibold">
-                {item.name}
-              </h3>
+      ) : data.length === 0 ? (
 
-              <p className="text-sm text-slate-500">
-                Remaining Stock
-              </p>
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+
+          <Package2
+            size={48}
+            className="mb-4 text-emerald-500"
+          />
+
+          <h3 className="text-lg font-semibold text-[var(--text)]">
+            Inventory Healthy
+          </h3>
+
+          <p className="mt-2 text-sm text-[var(--text-secondary)]">
+            No products are currently running low.
+          </p>
+
+        </div>
+
+      ) : (
+
+        <div className="space-y-4">
+
+          {data.map((product) => (
+
+            <div
+              key={product.product_id}
+              className="flex items-center justify-between rounded-2xl border border-[var(--border)] p-4 transition hover:bg-[var(--surface-hover)]"
+            >
+
+              <div>
+
+                <h3 className="font-semibold text-[var(--text)]">
+                  {product.product_name}
+                </h3>
+
+                <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                  Category: {product.category || "N/A"}
+                </p>
+
+                <p className="text-sm text-[var(--text-secondary)]">
+                  Supplier: {product.supplier || "N/A"}
+                </p>
+
+              </div>
+
+              <div className="text-right">
+
+                <span className="rounded-full bg-red-100 px-4 py-2 text-sm font-semibold text-red-600">
+                  {product.quantity} Left
+                </span>
+
+                <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                  Minimum: {product.minimum_stock}
+                </p>
+
+              </div>
 
             </div>
 
-            <span className="rounded-full bg-red-100 px-4 py-2 text-sm font-semibold text-red-600">
-              {item.stock} Left
-            </span>
+          ))}
 
-          </div>
+        </div>
 
-        ))}
-
-      </div>
+      )}
 
     </div>
   );

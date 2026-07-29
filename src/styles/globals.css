@@ -1,20 +1,60 @@
 @import "./variables.css";
 @import "tailwindcss";
 
-* {
-  box-sizing: border-box;
+*,
+*::before,
+*::after{
+  box-sizing:border-box;
 }
 
-html,
-body,
-#root {
-  width: 100%;
-  min-height: 100%;
+html{
+
+  scroll-behavior:smooth;
+
 }
 
-body {
-  margin: 0;
-  font-family: Inter, sans-serif;
-  background: var(--background);
-  color: var(--text);
+body{
+
+  margin:0;
+
+  font-family:Inter,sans-serif;
+
+  background:var(--background);
+
+  color:var(--text);
+
+  transition:
+    background .3s ease,
+    color .3s ease;
+}
+
+#root{
+
+  min-height:100vh;
+
+}
+
+button,
+input,
+textarea,
+select{
+
+  font:inherit;
+
+}
+
+button{
+
+  cursor:pointer;
+
+}
+
+*{
+
+  transition:
+    background-color .25s ease,
+    color .25s ease,
+    border-color .25s ease,
+    box-shadow .25s ease;
+
 }

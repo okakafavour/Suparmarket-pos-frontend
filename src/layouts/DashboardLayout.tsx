@@ -11,20 +11,22 @@ export default function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
   return (
-    <div className="h-screen overflow-hidden bg-slate-100">
+    <div
+  className="
+    min-h-screen
+    bg-[color:var(--background)]
+    text-[color:var(--text)]
+  "
+>
 
       <Sidebar />
 
-      <div className="lg:ml-80">
+      <div className="ml-0 lg:ml-[308px]">
 
         <Header />
 
-        <main className="h-screen overflow-y-auto pt-28">
-
-          <div className="px-6 pb-8">
-            {children}
-          </div>
-
+        <main className="px-6 pb-8 pt-28">
+          {children}
         </main>
 
       </div>

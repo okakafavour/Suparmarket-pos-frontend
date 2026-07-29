@@ -8,11 +8,11 @@ export default function Logo() {
       </div>
 
       <div>
-        <h1 className="text-xl font-bold tracking-tight text-white">
+        <h1 className="text-xl font-bold tracking-tight text-[color:var(--text)]">
           StockFlow
         </h1>
 
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-[color:var(--text-muted)]">
           Smart Retail POS
         </p>
       </div>

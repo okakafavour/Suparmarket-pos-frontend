@@ -9,15 +9,18 @@ import {
   Moon,
   Search,
   Settings,
+  Sun,
   User,
 } from "lucide-react";
 
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Header() {
   const navigate = useNavigate();
 
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const [openMenu, setOpenMenu] = useState(false);
 
@@ -51,11 +54,13 @@ export default function Header() {
   }
 
   return (
-<header className="fixed left-0 right-0 top-5 z-40 ml-80 mr-5 flex h-20 items-center justify-between rounded-[24px] border border-slate-200 bg-white px-8 shadow-sm">
+    <header className="fixed left-0 right-0 top-5 z-40 ml-80 mr-5 flex h-20 items-center justify-between rounded-[24px] border border-[var(--border)] bg-[color:var(--surface)]/80 px-8 shadow-xl backdrop-blur-xl transition-all duration-300">
+
       {/* Left */}
+
       <div className="flex items-center gap-5">
 
-        <button className="rounded-xl p-3 transition hover:bg-slate-100 lg:hidden">
+        <button className="rounded-xl p-3 transition hover:bg-[color:var(--surface-hover)] lg:hidden">
           <Menu size={22} />
         </button>
 
@@ -63,13 +68,31 @@ export default function Header() {
 
           <Search
             size={18}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-[color:var(--text-muted)]"
           />
 
           <input
             type="text"
-            placeholder="Search products, sales, customers..."
-            className="h-12 w-[380px] rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm outline-none transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+            placeholder="Search products, customers, suppliers..."
+            className="
+              h-12
+              w-[390px]
+              rounded-2xl
+              border
+              border-[var(--border)]
+              bg-[color:var(--background)]
+              pl-11
+              pr-4
+              text-sm
+              text-[color:var(--text)]
+              outline-none
+              transition-all
+              duration-300
+              placeholder:text-[color:var(--text-muted)]
+              focus:border-blue-500
+              focus:ring-4
+              focus:ring-blue-500/10
+            "
           />
 
         </div>
@@ -77,18 +100,19 @@ export default function Header() {
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-4">
+
+      <div className="flex items-center gap-3">
 
         {/* Date */}
 
-        <div className="hidden items-center gap-3 rounded-2xl bg-slate-100 px-4 py-3 xl:flex">
+        <div className="hidden items-center gap-3 rounded-2xl bg-[color:var(--background)] px-4 py-3 xl:flex">
 
           <CalendarDays
             size={18}
             className="text-blue-600"
           />
 
-          <span className="text-sm font-medium">
+          <span className="text-sm font-medium text-[color:var(--text)]">
             {today}
           </span>
 
@@ -96,19 +120,33 @@ export default function Header() {
 
         {/* Theme */}
 
-        <button className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 transition hover:bg-slate-200">
-
-          <Moon size={18} />
-
+        <button
+          onClick={toggleTheme}
+          className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[color:var(--background)] transition-all duration-300 hover:scale-105 hover:bg-[color:var(--surface-hover)]"
+        >
+          {theme === "dark" ? (
+            <Sun
+              size={19}
+              className="text-yellow-400"
+            />
+          ) : (
+            <Moon
+              size={19}
+              className="text-slate-600"
+            />
+          )}
         </button>
 
         {/* Notifications */}
 
-        <button className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 transition hover:bg-slate-200">
+        <button className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-[color:var(--background)] transition-all duration-300 hover:scale-105 hover:bg-[color:var(--surface-hover)]">
 
-          <Bell size={18} />
+          <Bell
+            size={19}
+            className="text-[color:var(--text)]"
+          />
 
-          <span className="absolute right-3 top-3 h-2.5 w-2.5 rounded-full bg-red-500" />
+          <span className="absolute right-3 top-3 h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />
 
         </button>
 
@@ -118,10 +156,10 @@ export default function Header() {
 
           <button
             onClick={() => setOpenMenu(!openMenu)}
-            className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2 transition-all hover:border-blue-200 hover:shadow-lg"
+            className="flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-[color:var(--surface)] px-3 py-2 transition-all duration-300 hover:shadow-xl"
           >
 
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 font-bold text-white">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 font-bold text-white shadow-lg">
 
               {initials}
 
@@ -129,11 +167,11 @@ export default function Header() {
 
             <div className="hidden text-left lg:block">
 
-              <h4 className="font-semibold leading-none">
+              <h4 className="font-semibold text-[color:var(--text)]">
                 {fullName}
               </h4>
 
-              <p className="mt-1 text-sm capitalize text-slate-500">
+              <p className="mt-1 text-sm text-[color:var(--text-muted)]">
                 {role}
               </p>
 
@@ -141,34 +179,30 @@ export default function Header() {
 
             <ChevronDown
               size={18}
-              className={`text-slate-400 transition-transform ${
+              className={`text-[color:var(--text-muted)] transition-transform duration-300 ${
                 openMenu ? "rotate-180" : ""
               }`}
             />
 
           </button>
 
-          {/* Dropdown */}
-
           {openMenu && (
 
-            <div className="absolute right-0 mt-3 w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <div className="absolute right-0 mt-3 w-72 overflow-hidden rounded-3xl border border-[var(--border)] bg-[color:var(--surface)] shadow-2xl">
 
-              <div className="border-b border-slate-100 px-5 py-4">
+              <div className="border-b border-[var(--border)] p-5">
 
-                <h3 className="font-semibold">
+                <h3 className="font-semibold text-[color:var(--text)]">
                   {fullName}
                 </h3>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-[color:var(--text-muted)]">
                   {user?.email}
                 </p>
 
               </div>
 
-              <button
-                className="flex w-full items-center gap-3 px-5 py-4 text-left transition hover:bg-slate-50"
-              >
+              <button className="flex w-full items-center gap-3 px-5 py-4 text-left transition hover:bg-[color:var(--surface-hover)]">
 
                 <User size={18} />
 
@@ -176,9 +210,7 @@ export default function Header() {
 
               </button>
 
-              <button
-                className="flex w-full items-center gap-3 px-5 py-4 text-left transition hover:bg-slate-50"
-              >
+              <button className="flex w-full items-center gap-3 px-5 py-4 text-left transition hover:bg-[color:var(--surface-hover)]">
 
                 <Settings size={18} />
 
@@ -187,8 +219,25 @@ export default function Header() {
               </button>
 
               <button
+                onClick={toggleTheme}
+                className="flex w-full items-center gap-3 px-5 py-4 text-left transition hover:bg-[color:var(--surface-hover)]"
+              >
+
+                {theme === "dark" ? (
+                  <Sun size={18} />
+                ) : (
+                  <Moon size={18} />
+                )}
+
+                {theme === "dark"
+                  ? "Light Mode"
+                  : "Dark Mode"}
+
+              </button>
+
+              <button
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 border-t border-slate-100 px-5 py-4 text-left text-red-600 transition hover:bg-red-50"
+                className="flex w-full items-center gap-3 border-t border-[var(--border)] px-5 py-4 text-left text-red-500 transition hover:bg-red-50 dark:hover:bg-red-950/30"
               >
 
                 <LogOut size={18} />
