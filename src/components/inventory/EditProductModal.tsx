@@ -65,11 +65,14 @@ export default function EditProductModal({
         description: values.Description,
         sku: values.SKU,
         barcode: values.Barcode,
-        costPrice: Number(values.CostPrice),
-        sellingPrice: Number(values.SellingPrice),
+
+        cost_price: Number(values.CostPrice),
+        selling_price: Number(values.SellingPrice),
+
         quantity: Number(values.Quantity),
-        minimumStock: Number(values.MinimumStock),
-        isActive: values.IsActive,
+        minimum_stock: Number(values.MinimumStock),
+
+        is_active: values.IsActive,
       },
     },
     {

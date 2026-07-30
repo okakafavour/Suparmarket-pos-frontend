@@ -9,6 +9,8 @@ import LoadingInventory from "./LoadingInventory";
 import EmptyInventory from "./EmptyInventory";
 import ProductDrawer from "./ProductDrawer";
 import InventoryPagination from "./InventoryPagination";
+import EditProductModal from "./EditProductModal";
+import DeleteProductDialog from "./DeleteProductDialog";
 
 interface Props {
   page: number;
@@ -41,6 +43,12 @@ export default function InventoryTable({
 
   const [selectedProduct, setSelectedProduct] =
     useState<Product | null>(null);
+
+  const [editingProduct, setEditingProduct] =
+  useState<Product | null>(null);
+
+const [deletingProduct, setDeletingProduct] =
+  useState<Product | null>(null);
 
   // Prevent invalid page after filtering
   useEffect(() => {
@@ -86,12 +94,14 @@ const totalProducts = data?.pagination?.total ?? products.length;
   }
 
   function handleEdit(product: Product) {
-    console.log("Edit:", product);
-  }
+  setEditingProduct(product);
+}
 
-  function handleDelete(product: Product) {
-    console.log("Delete:", product);
-  }
+function handleDelete(product: Product) {
+  setDeletingProduct(product);
+}
+
+
 
   return (
     <>
@@ -163,6 +173,18 @@ const totalProducts = data?.pagination?.total ?? products.length;
             onClose={() => setSelectedProduct(null)}
           />
         )}
+
+        <EditProductModal
+          open={!!editingProduct}
+          product={editingProduct}
+          onClose={() => setEditingProduct(null)}
+        />
+
+        <DeleteProductDialog
+          open={!!deletingProduct}
+          product={deletingProduct}
+          onClose={() => setDeletingProduct(null)}
+        />
       </>
     </>
   );
