@@ -1,151 +1,169 @@
-import {
-  Eye,
-  Pencil,
-  Trash2,
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import { Package } from "lucide-react";
 
-import StockBadge from "./StockBadge";
+import { useProducts } from "@/queries/useProducts";
+import type { Product } from "@/types/product";
 
-const products = [
-  {
-    id: 1,
-    image: "🥤",
-    name: "Coca Cola 50cl",
-    sku: "COL-001",
-    category: "Beverages",
-    price: "$2.50",
-    quantity: 125,
-  },
-  {
-    id: 2,
-    image: "🥛",
-    name: "Peak Milk",
-    sku: "PMK-002",
-    category: "Dairy",
-    price: "$5.00",
-    quantity: 7,
-  },
-  {
-    id: 3,
-    image: "🍞",
-    name: "Bread",
-    sku: "BRD-004",
-    category: "Bakery",
-    price: "$1.25",
-    quantity: 0,
-  },
-  {
-    id: 4,
-    image: "🍪",
-    name: "Cookies",
-    sku: "CK-110",
-    category: "Snacks",
-    price: "$3.80",
-    quantity: 84,
-  },
-];
+import InventoryTableRow from "./InventoryTableRow";
+import LoadingInventory from "./LoadingInventory";
+import EmptyInventory from "./EmptyInventory";
+import ProductDrawer from "./ProductDrawer";
+import InventoryPagination from "./InventoryPagination";
 
-export default function InventoryTable() {
-  return (
-    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead className="bg-slate-50">
-            <tr className="text-left">
-              <th className="px-6 py-4 text-sm font-semibold text-slate-600">
-                Product
-              </th>
+interface Props {
+  page: number;
+  limit: number;
+  search: string;
+  category: string;
+  status: string;
+  onPageChange: (page: number) => void;
+}
 
-              <th className="px-6 py-4 text-sm font-semibold text-slate-600">
-                SKU
-              </th>
+export default function InventoryTable({
+  page,
+  limit,
+  search,
+  category,
+  status,
+  onPageChange,
+}: Props) {
+  const {
+    data,
+    isLoading,
+    isError,
+  } = useProducts({
+    page,
+    limit,
+    search,
+    category,
+    status,
+  });
 
-              <th className="px-6 py-4 text-sm font-semibold text-slate-600">
-                Category
-              </th>
+  const [selectedProduct, setSelectedProduct] =
+    useState<Product | null>(null);
 
-              <th className="px-6 py-4 text-sm font-semibold text-slate-600">
-                Price
-              </th>
+  // Prevent invalid page after filtering
+  useEffect(() => {
+    if (
+      data?.pagination &&
+      page > data.pagination.total_pages &&
+      data.pagination.total_pages > 0
+    ) {
+      onPageChange(data.pagination.total_pages);
+    }
+  }, [data, page, onPageChange]);
 
-              <th className="px-6 py-4 text-sm font-semibold text-slate-600">
-                Quantity
-              </th>
+  if (isLoading) {
+    return <LoadingInventory />;
+  }
 
-              <th className="px-6 py-4 text-sm font-semibold text-slate-600">
-                Status
-              </th>
+  if (isError) {
+    return (
+      <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-950/20">
+        <Package className="mx-auto mb-4 h-12 w-12 text-red-500" />
 
-              <th className="px-6 py-4 text-center text-sm font-semibold text-slate-600">
-                Actions
-              </th>
-            </tr>
-          </thead>
+        <h2 className="text-xl font-bold text-red-600 dark:text-red-400">
+          Failed to load products
+        </h2>
 
-          <tbody>
-            {products.map((product) => (
-              <tr
-                key={product.id}
-                className="border-t border-slate-100 transition hover:bg-slate-50"
-              >
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-2xl">
-                      {product.image}
-                    </div>
-
-                    <div>
-                      <h4 className="font-semibold text-slate-900">
-                        {product.name}
-                      </h4>
-
-                      <p className="text-sm text-slate-500">
-                        Product Item
-                      </p>
-                    </div>
-                  </div>
-                </td>
-
-                <td className="px-6 py-4 font-medium">
-                  {product.sku}
-                </td>
-
-                <td className="px-6 py-4">
-                  {product.category}
-                </td>
-
-                <td className="px-6 py-4 font-semibold">
-                  {product.price}
-                </td>
-
-                <td className="px-6 py-4">
-                  {product.quantity}
-                </td>
-
-                <td className="px-6 py-4">
-                  <StockBadge quantity={product.quantity} />
-                </td>
-
-                <td className="px-6 py-4">
-                  <div className="flex justify-center gap-2">
-                    <button className="rounded-xl p-2 transition hover:bg-blue-100">
-                      <Eye size={18} />
-                    </button>
-
-                    <button className="rounded-xl p-2 transition hover:bg-amber-100">
-                      <Pencil size={18} />
-                    </button>
-
-                    <button className="rounded-xl p-2 transition hover:bg-red-100">
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <p className="mt-2 text-slate-500 dark:text-slate-400">
+          Please refresh the page and try again.
+        </p>
       </div>
-    </div>
+    );
+  }
+
+  const products = data?.products ?? [];
+  const totalPages = data?.pagination?.total_pages ?? 1;
+const totalProducts = data?.pagination?.total ?? products.length;
+
+  if (!products.length) {
+    return <EmptyInventory />;
+  }
+
+  function handleView(product: Product) {
+    setSelectedProduct(product);
+  }
+
+  function handleEdit(product: Product) {
+    console.log("Edit:", product);
+  }
+
+  function handleDelete(product: Product) {
+    console.log("Delete:", product);
+  }
+
+  return (
+    <>
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  Product
+                </th>
+
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  SKU
+                </th>
+
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  Category
+                </th>
+
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  Supplier
+                </th>
+
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  Selling Price
+                </th>
+
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  Stock
+                </th>
+
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  Status
+                </th>
+
+                <th className="px-6 py-4 text-center text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {products.map((product) => (
+                <InventoryTableRow
+                  key={product.ID}
+                  product={product}
+                  onView={handleView}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <>
+        <InventoryPagination
+          page={page}
+          totalPages={totalPages}
+          totalProducts={totalProducts}
+          onPageChange={onPageChange}
+        />
+
+        {selectedProduct && (
+          <ProductDrawer
+            product={selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+          />
+        )}
+      </>
+    </>
   );
 }

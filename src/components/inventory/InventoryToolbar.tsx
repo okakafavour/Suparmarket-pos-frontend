@@ -1,12 +1,38 @@
-import { Download, RefreshCw, Search } from "lucide-react";
+import {
+  Search,
+  RotateCw,
+  Download,
+} from "lucide-react";
 
-import Button from "@/components/ui/Button";
+interface Props {
+  search: string;
+  onSearch: (value: string) => void;
 
-export default function InventoryToolbar() {
+  category: string;
+  onCategoryChange: (value: string) => void;
+
+  status: string;
+  onStatusChange: (value: string) => void;
+
+  onRefresh?: () => void;
+  onExport?: () => void;
+}
+
+export default function InventoryToolbar({
+  search,
+  onSearch,
+  category,
+  onCategoryChange,
+  status,
+  onStatusChange,
+  onRefresh,
+  onExport,
+}: Props) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         {/* Search */}
+
         <div className="relative w-full lg:max-w-md">
           <Search
             size={18}
@@ -15,37 +41,67 @@ export default function InventoryToolbar() {
 
           <input
             type="text"
-            placeholder="Search products..."
-            className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+            value={search}
+            onChange={(e) => onSearch(e.target.value)}
+            placeholder="Search product name or SKU..."
+            className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800"
           />
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3">
-          <select className="h-12 rounded-2xl border border-slate-200 bg-white px-4">
-            <option>All Categories</option>
-            <option>Beverages</option>
-            <option>Bakery</option>
-            <option>Dairy</option>
-            <option>Frozen</option>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Category */}
+
+          <select
+            value={category}
+            onChange={(e) => onCategoryChange(e.target.value)}
+            className="h-12 rounded-xl border border-slate-200 bg-white px-4 dark:border-slate-700 dark:bg-slate-800"
+          >
+            <option value="">All Categories</option>
+
+            <option value="Beverages">Beverages</option>
+
+            <option value="Bakery">Bakery</option>
+
+            <option value="Dairy">Dairy</option>
+
+            <option value="Snacks">Snacks</option>
           </select>
 
-          <select className="h-12 rounded-2xl border border-slate-200 bg-white px-4">
-            <option>All Status</option>
-            <option>In Stock</option>
-            <option>Low Stock</option>
-            <option>Out of Stock</option>
+          {/* Status */}
+
+          <select
+            value={status}
+            onChange={(e) => onStatusChange(e.target.value)}
+            className="h-12 rounded-xl border border-slate-200 bg-white px-4 dark:border-slate-700 dark:bg-slate-800"
+          >
+            <option value="">All Status</option>
+
+            <option value="active">Active</option>
+
+            <option value="inactive">Inactive</option>
           </select>
 
-          <Button variant="outline">
-            <RefreshCw className="mr-2 h-4 w-4" />
+          {/* Refresh */}
+
+          <button
+            onClick={onRefresh}
+            className="flex h-12 items-center gap-2 rounded-xl border border-slate-200 px-4 transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+          >
+            <RotateCw size={16} />
+
             Refresh
-          </Button>
+          </button>
 
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
+          {/* Export */}
+
+          <button
+            onClick={onExport}
+            className="flex h-12 items-center gap-2 rounded-xl bg-blue-600 px-4 text-white transition hover:bg-blue-700"
+          >
+            <Download size={16} />
+
+            Export CSV
+          </button>
         </div>
       </div>
     </div>

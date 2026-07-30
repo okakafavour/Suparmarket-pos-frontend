@@ -1,24 +1,52 @@
+import { useState } from "react";
 import { Plus } from "lucide-react";
 
-import Button from "@/components/ui/Button";
+import CreateProductModal from "./CreateProductModal";
 
 export default function InventoryHeader() {
-  return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          Inventory
-        </h1>
+  const [open, setOpen] = useState(false);
 
-        <p className="mt-2 text-slate-500">
-          Manage products, monitor stock levels, and organize your inventory.
-        </p>
+  return (
+    <>
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+
+        <div>
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
+            Inventory
+          </h1>
+
+          <p className="mt-2 text-slate-600 dark:text-slate-400">
+            Manage products, stock levels and suppliers.
+          </p>
+        </div>
+
+        <button
+          onClick={() => setOpen(true)}
+          className="
+            inline-flex
+            items-center
+            gap-2
+            rounded-xl
+            bg-blue-600
+            px-5
+            py-3
+            font-medium
+            text-white
+            transition-all
+            hover:bg-blue-700
+          "
+        >
+          <Plus size={18} />
+
+          Add Product
+        </button>
+
       </div>
 
-      <Button className="h-12 px-6">
-        <Plus className="mr-2 h-5 w-5" />
-        Add Product
-      </Button>
-    </div>
+      <CreateProductModal
+        open={open}
+        onClose={() => setOpen(false)}
+      />
+    </>
   );
 }
