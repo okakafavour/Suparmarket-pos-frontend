@@ -7,7 +7,7 @@ import type { Product } from "@/types/product";
 import InventoryTableRow from "./InventoryTableRow";
 import LoadingInventory from "./LoadingInventory";
 import EmptyInventory from "./EmptyInventory";
-import ProductDrawer from "./ProductDrawer";
+import ProductDetailsModal from "@/components/products/ProductDetailsModal";
 import InventoryPagination from "./InventoryPagination";
 import EditProductModal from "./EditProductModal";
 import DeleteProductDialog from "./DeleteProductDialog";
@@ -176,9 +176,14 @@ function handleDelete(product: Product) {
         />
 
         {selectedProduct && (
-          <ProductDrawer
+          <ProductDetailsModal
+            open={!!selectedProduct}
             product={selectedProduct}
             onClose={() => setSelectedProduct(null)}
+            onEdit={(product) => {
+              setSelectedProduct(null);
+              setEditingProduct(product);
+            }}
           />
         )}
 

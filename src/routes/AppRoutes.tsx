@@ -8,6 +8,7 @@ import {
 import Dashboard from "@/pages/Dashboard/Dashboard";
 import Inventory from "@/pages/Inventory/Inventory";
 import Login from "@/pages/Auth/Login";
+import Products from "@/pages/Products/Products";
 
 import ProtectedRoute from "./ProtectedRoute";
 import GuestRoute from "./GuestRoute";
@@ -38,6 +39,11 @@ export default function AppRoutes() {
           <Route
             path="/inventory"
             element={<Inventory />}
+          />
+
+          <Route
+            path="/products"
+            element={<Products />}
           />
         </Route>
 
