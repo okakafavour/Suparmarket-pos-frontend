@@ -1,6 +1,9 @@
 @import "./variables.css";
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+
 *,
 *::before,
 *::after{

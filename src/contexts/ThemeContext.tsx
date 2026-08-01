@@ -37,10 +37,14 @@ export function ThemeProvider({
   }, [theme]);
 
   function toggleTheme() {
-    setTheme((prev) =>
-      prev === "light" ? "dark" : "light"
-    );
-  }
+  setTheme((prev) => {
+    const next = prev === "light" ? "dark" : "light";
+
+    console.log("Switching to:", next);
+
+    return next;
+  });
+}
 
   return (
     <ThemeContext.Provider

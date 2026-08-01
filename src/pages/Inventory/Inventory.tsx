@@ -5,11 +5,14 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 import InventoryHeader from "@/components/inventory/InventoryHeader";
 import InventoryToolbar from "@/components/inventory/InventoryToolbar";
 import InventoryTable from "@/components/inventory/InventoryTable";
+import type { Product } from "@/types/product";
 
 export default function Inventory() {
   const [page, setPage] = useState(1);
 
   const [search, setSearch] = useState("");
+
+  const [products, setProducts] = useState<Product[]>([]);
 
   const [category, setCategory] = useState("");
 
@@ -22,8 +25,54 @@ export default function Inventory() {
   }
 
   function handleExport() {
-    console.log("Export CSV");
-  }
+  if (!products.length) return;
+
+  const headers = [
+    "Name",
+    "SKU",
+    "Category",
+    "Supplier",
+    "Cost Price",
+    "Selling Price",
+    "Quantity",
+    "Minimum Stock",
+    "Status",
+  ];
+
+  const rows = products.map((product) => [
+    product.Name,
+    product.SKU,
+    product.Category?.name ?? "",
+    product.Supplier?.Name ?? "",
+    product.CostPrice,
+    product.SellingPrice,
+    product.Quantity,
+    product.MinimumStock,
+    product.IsActive ? "Active" : "Inactive",
+  ]);
+
+  const csv = [
+    headers.join(","),
+    ...rows.map((row) => row.join(",")),
+  ].join("\n");
+
+  const blob = new Blob([csv], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `products-${new Date()
+    .toISOString()
+    .slice(0, 10)}.csv`;
+
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
 
   return (
     <DashboardLayout>
@@ -57,6 +106,7 @@ export default function Inventory() {
           category={category}
           status={status}
           onPageChange={setPage}
+          onProductsChange={setProducts}
         />
       </div>
     </DashboardLayout>

@@ -20,7 +20,7 @@ export default function InventoryPagination({
   const end = Math.min(page * 10, totalProducts);
 
   return (
-    <div className="flex flex-col items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 md:flex-row">
+    <div className="mt-6 flex flex-col items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 md:flex-row">
       <p className="text-sm text-slate-500 dark:text-slate-400">
         Showing{" "}
         <span className="font-semibold text-slate-900 dark:text-white">
@@ -34,14 +34,16 @@ export default function InventoryPagination({
       </p>
 
       <div className="flex items-center gap-2">
+        {/* Previous */}
         <button
           disabled={page === 1}
           onClick={() => onPageChange(page - 1)}
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 transition hover:bg-slate-100 disabled:opacity-40 dark:border-slate-700 dark:hover:bg-slate-800"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
         >
           <ChevronLeft size={18} />
         </button>
 
+        {/* Page Numbers */}
         {Array.from({ length: totalPages }, (_, index) => {
           const pageNumber = index + 1;
 
@@ -52,7 +54,7 @@ export default function InventoryPagination({
               className={`flex h-10 w-10 items-center justify-center rounded-xl font-semibold transition ${
                 page === pageNumber
                   ? "bg-blue-600 text-white"
-                  : "border border-slate-200 hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
+                  : "border border-slate-200 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
               }`}
             >
               {pageNumber}
@@ -60,10 +62,11 @@ export default function InventoryPagination({
           );
         })}
 
+        {/* Next */}
         <button
           disabled={page === totalPages}
           onClick={() => onPageChange(page + 1)}
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 transition hover:bg-slate-100 disabled:opacity-40 dark:border-slate-700 dark:hover:bg-slate-800"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
         >
           <ChevronRight size={18} />
         </button>

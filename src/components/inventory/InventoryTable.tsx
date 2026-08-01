@@ -19,6 +19,7 @@ interface Props {
   category: string;
   status: string;
   onPageChange: (page: number) => void;
+  onProductsChange?: (products: Product[]) => void;
 }
 
 export default function InventoryTable({
@@ -28,6 +29,7 @@ export default function InventoryTable({
   category,
   status,
   onPageChange,
+  onProductsChange,
 }: Props) {
   const {
     data,
@@ -60,6 +62,12 @@ const [deletingProduct, setDeletingProduct] =
       onPageChange(data.pagination.total_pages);
     }
   }, [data, page, onPageChange]);
+
+  useEffect(() => {
+  if (data?.products) {
+    onProductsChange?.(data.products);
+  }
+}, [data, onProductsChange]);
 
   if (isLoading) {
     return <LoadingInventory />;
