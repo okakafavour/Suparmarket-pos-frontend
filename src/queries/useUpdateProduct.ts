@@ -1,10 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
-import { updateProduct } from "@/services/inventory.service";
+import {
+  updateProduct,
+  type CreateProductPayload,
+} from "@/services/inventory.service";
 
 interface UpdatePayload {
   id: string;
-  payload: any;
+  payload: Partial<CreateProductPayload> & {
+    is_active?: boolean;
+  };
 }
 
 export function useUpdateProduct() {
@@ -15,9 +21,18 @@ export function useUpdateProduct() {
       updateProduct(id, payload),
 
     onSuccess: () => {
+      toast.success("Product updated successfully");
+
       queryClient.invalidateQueries({
         queryKey: ["products"],
       });
+    },
+
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message ??
+          "Failed to update product"
+      );
     },
   });
 }

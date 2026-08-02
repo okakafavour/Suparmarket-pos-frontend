@@ -4,6 +4,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 
 import "./styles/globals.css";
+import { Toaster } from "react-hot-toast";
 
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -22,7 +23,14 @@ ReactDOM.createRoot(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
+
           <App />
+
+          <Toaster
+            position="top-right"
+            reverseOrder={false}
+          />
+
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

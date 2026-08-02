@@ -13,10 +13,29 @@ import InventoryPagination from "@/components/inventory/InventoryPagination";
 import LoadingInventory from "@/components/inventory/LoadingInventory";
 import EmptyInventory from "@/components/inventory/EmptyInventory";
 
-export default function ProductGrid() {
+interface Props {
+  search: string;
+  category: string;
+  sort: string;
+  view: "grid" | "list";
+
+  onProductsLoaded?: (products: Product[]) => void;
+}
+
+export default function ProductGrid({
+  search,
+  category,
+  sort,
+  view,
+  onProductsLoaded,
+}: Props) {
   const [page, setPage] = useState(1);
 
   const limit = 12;
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, category, sort]);
 
   const {
     data,
@@ -25,6 +44,9 @@ export default function ProductGrid() {
   } = useProducts({
     page,
     limit,
+    search,
+    category,
+    sortBy: sort,
   });
 
   const [selectedProduct, setSelectedProduct] =
@@ -67,7 +89,13 @@ export default function ProductGrid() {
   }
 
   const products = data?.products ?? [];
-  const totalPages = data?.pagination?.total_pages ?? 1;
+  useEffect(() => {
+  onProductsLoaded?.(products);
+}, [products, onProductsLoaded]);
+
+  const totalPages =
+    data?.pagination?.total_pages ?? 1;
+
   const totalProducts =
     data?.pagination?.total ?? products.length;
 
@@ -90,18 +118,23 @@ export default function ProductGrid() {
   return (
     <>
       <div
-        className="
-          grid
-          gap-6
-          sm:grid-cols-2
-          xl:grid-cols-3
-          2xl:grid-cols-4
-        "
+        className={
+          view === "grid"
+            ? `
+              grid
+              gap-6
+              sm:grid-cols-2
+              xl:grid-cols-3
+              2xl:grid-cols-4
+            `
+            : "space-y-6"
+        }
       >
         {products.map((product) => (
           <ProductCard
             key={product.ID}
             product={product}
+            view={view}
             onView={handleView}
             onEdit={handleEdit}
             onDelete={handleDelete}
@@ -109,24 +142,24 @@ export default function ProductGrid() {
         ))}
       </div>
 
-      <InventoryPagination
-        page={page}
-        totalPages={totalPages}
-        totalProducts={totalProducts}
-        onPageChange={setPage}
-      />
+      <div className="mt-8">
+        <InventoryPagination
+          page={page}
+          totalPages={totalPages}
+          totalProducts={totalProducts}
+          onPageChange={setPage}
+        />
+      </div>
 
-      {selectedProduct && (
-        <ProductDetailsModal
-            open={!!selectedProduct}
-            product={selectedProduct}
-            onClose={() => setSelectedProduct(null)}
-            onEdit={(product) => {
-                setSelectedProduct(null);
-                setEditingProduct(product);
-            }}
-            />
-      )}
+      <ProductDetailsModal
+        open={!!selectedProduct}
+        product={selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        onEdit={(product) => {
+          setSelectedProduct(null);
+          setEditingProduct(product);
+        }}
+      />
 
       <EditProductModal
         open={!!editingProduct}
