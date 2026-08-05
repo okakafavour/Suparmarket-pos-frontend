@@ -13,6 +13,7 @@ import Products from "@/pages/Products/Products";
 import ProtectedRoute from "./ProtectedRoute";
 import GuestRoute from "./GuestRoute";
 import Sales from "@/pages/Sales/Sales";
+import Customers from "@/pages/Customers/Customers";
 
 export default function AppRoutes() {
   return (
@@ -50,6 +51,11 @@ export default function AppRoutes() {
           <Route
             path="/sales"
             element={<Sales />}
+          />
+
+          <Route
+            path="/customers"
+            element={<Customers />}
           />
         </Route>
 
