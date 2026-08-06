@@ -5,7 +5,7 @@ import type {
   CustomerDashboard,
   CreateCustomerPayload,
   UpdateCustomerPayload,
-  AddLoyaltyPayload,
+  // AddLoyaltyPayload,
 } from "@/types/customers";
 
 // ===============================

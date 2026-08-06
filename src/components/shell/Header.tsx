@@ -22,6 +22,7 @@ export default function Header() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
+  
   const [openMenu, setOpenMenu] = useState(false);
 
   const today = useMemo(
@@ -52,6 +53,8 @@ export default function Header() {
     logout();
     navigate("/login", { replace: true });
   }
+
+  
 
   return (
     <header className="fixed left-0 right-0 top-5 z-40 ml-80 mr-5 flex h-20 items-center justify-between rounded-[24px] border border-[var(--border)] bg-[color:var(--surface)]/80 px-8 shadow-xl backdrop-blur-xl transition-all duration-300">
