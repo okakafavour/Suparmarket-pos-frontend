@@ -2,61 +2,62 @@ import {
   Users,
   UserCheck,
   Wallet,
-  Star,
+  Award,
 } from "lucide-react";
 
-import { useCustomers } from "@/queries/useCustomers";
+import { useCustomerDashboard } from "@/queries/useCustomerDashboard";
 
 export default function CustomersStats() {
-  const { data: customers = [], isLoading } =
-    useCustomers();
-
-  const totalCustomers = customers.length;
-
-  const activeCustomers = customers.filter(
-    (customer) => customer.is_active
-  ).length;
-
-  const totalSpent = customers.reduce(
-    (sum, customer) => sum + customer.total_spent,
-    0
-  );
-
-  const loyaltyPoints = customers.reduce(
-    (sum, customer) => sum + customer.loyalty_points,
-    0
-  );
+  const {
+    data,
+    isLoading,
+  } = useCustomerDashboard();
 
   const stats = [
     {
       title: "Total Customers",
-      value: totalCustomers,
+      value: data?.total_customers ?? 0,
       icon: Users,
       color: "text-blue-600",
       bg: "bg-blue-100 dark:bg-blue-500/20",
     },
     {
       title: "Active Customers",
-      value: activeCustomers,
+      value: data?.active_customers ?? 0,
       icon: UserCheck,
       color: "text-emerald-600",
       bg: "bg-emerald-100 dark:bg-emerald-500/20",
     },
     {
-      title: "Total Spending",
-      value: `₦${totalSpent.toLocaleString()}`,
+      title: "Customer Revenue",
+      value: `₦${(
+        data?.total_revenue ?? 0
+      ).toLocaleString()}`,
       icon: Wallet,
       color: "text-violet-600",
       bg: "bg-violet-100 dark:bg-violet-500/20",
     },
     {
-      title: "Loyalty Points",
-      value: loyaltyPoints.toLocaleString(),
-      icon: Star,
+      title: "Loyalty Members",
+      value: data?.loyalty_members ?? 0,
+      icon: Award,
       color: "text-orange-600",
       bg: "bg-orange-100 dark:bg-orange-500/20",
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-36 animate-pulse rounded-[30px] bg-[color:var(--surface)]"
+          />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
@@ -75,7 +76,7 @@ export default function CustomersStats() {
                 </p>
 
                 <h2 className="mt-3 text-3xl font-bold text-[color:var(--text)]">
-                  {isLoading ? "..." : item.value}
+                  {item.value}
                 </h2>
               </div>
 

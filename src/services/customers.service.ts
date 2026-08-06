@@ -2,8 +2,10 @@ import api from "@/lib/axios";
 
 import type {
   Customer,
+  CustomerDashboard,
   CreateCustomerPayload,
   UpdateCustomerPayload,
+  AddLoyaltyPayload,
 } from "@/types/customers";
 
 // ===============================
@@ -106,6 +108,16 @@ export async function addLoyaltyPoints(
       points,
     }
   );
+
+  return data.data;
+}
+
+// ==========================
+// Dashboard
+// ==========================
+
+export async function getCustomerDashboard(): Promise<CustomerDashboard> {
+  const { data } = await api.get("/customers/dashboard");
 
   return data.data;
 }

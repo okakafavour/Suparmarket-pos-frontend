@@ -57,3 +57,21 @@ export interface UpdateCustomerPayload {
 export interface AddLoyaltyPayload {
   points: number;
 }
+
+// ==========================
+// Customer Dashboard
+// ==========================
+
+export interface CustomerDashboard {
+  total_customers: number;
+
+  active_customers: number;
+
+  inactive_customers: number;
+
+  total_revenue: number;
+
+  total_orders: number;
+
+  loyalty_members: number;
+}
