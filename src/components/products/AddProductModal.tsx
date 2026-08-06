@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCategories } from "@/queries/useCategories";
-import { useSuppliers } from "@/queries/useSuppliers";
+import { useSuppliers } from "@/queries/useSupplier";
 import { useCreateProduct } from "@/queries/useCreateProduct";
 
 import type { CreateProductPayload } from "@/services/inventory.service";
@@ -27,7 +27,9 @@ export default function AddProductModal({
 }: Props) {
   const { data: categories = [] } = useCategories();
 
-  const { data: suppliers = [] } = useSuppliers();
+  const { data: supplierResponse } = useSuppliers();
+
+  const suppliers = supplierResponse?.data ?? [];
 
   const createMutation = useCreateProduct();
 
@@ -276,8 +278,8 @@ export default function AddProductModal({
 
                   {categories.map((category: any) => (
                     <option
-                      key={category.ID}
-                      value={category.ID}
+                      key={category.id}
+                      value={category.id}
                     >
                       {category.name}
                     </option>

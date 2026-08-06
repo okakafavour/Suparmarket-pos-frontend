@@ -6,7 +6,7 @@ export function useDeleteSale() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deleteSale(id),
+    mutationFn: deleteSale,
 
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -19,10 +19,6 @@ export function useDeleteSale() {
 
       queryClient.invalidateQueries({
         queryKey: ["sales-analytics"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["products"],
       });
     },
   });

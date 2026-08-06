@@ -58,6 +58,14 @@ export default function ProductGrid({
   const [deletingProduct, setDeletingProduct] =
     useState<Product | null>(null);
 
+  const products = data?.products ?? [];
+
+  const totalPages =
+    data?.pagination?.total_pages ?? 1;
+
+  const totalProducts =
+    data?.pagination?.total ?? products.length;
+
   useEffect(() => {
     if (
       data?.pagination &&
@@ -67,6 +75,10 @@ export default function ProductGrid({
       setPage(data.pagination.total_pages);
     }
   }, [data, page]);
+
+  useEffect(() => {
+    onProductsLoaded?.(products);
+  }, [products, onProductsLoaded]);
 
   if (isLoading) {
     return <LoadingInventory />;
@@ -87,17 +99,6 @@ export default function ProductGrid({
       </div>
     );
   }
-
-  const products = data?.products ?? [];
-  useEffect(() => {
-  onProductsLoaded?.(products);
-}, [products, onProductsLoaded]);
-
-  const totalPages =
-    data?.pagination?.total_pages ?? 1;
-
-  const totalProducts =
-    data?.pagination?.total ?? products.length;
 
   if (!products.length) {
     return <EmptyInventory />;

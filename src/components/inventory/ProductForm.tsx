@@ -8,7 +8,7 @@ import FormTextarea from "./FormTextarea";
 import FormSelect from "./FormSelect";
 
 import { useCategories } from "@/queries/useCategories";
-import { useSuppliers } from "@/queries/useSuppliers";
+import { useSuppliers } from "@/queries/useSupplier";
 import type { Product } from "@/types/product";
 
 const schema = z.object({
@@ -46,7 +46,9 @@ export default function ProductForm({
 }: Props) {
   const { data: categories = [] } = useCategories();
 
-  const { data: suppliers = [] } = useSuppliers();
+  const { data: supplierResponse } = useSuppliers();
+
+  const suppliers = supplierResponse?.data ?? [];
 
   const {
     register,
@@ -153,8 +155,8 @@ export default function ProductForm({
             setValue("supplier_id", value)
           }
           options={suppliers.map((s: any) => ({
-            value: s.ID,
-            label: s.Name,
+            value: s.id,
+            label: s.name,
             }))}
           error={errors.supplier_id?.message}
         />

@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 
 import { useProducts } from "@/queries/useProducts";
-import { useCreateSale } from "@/hooks/sales/useCreateSale";
+import { useCreateSale } from "@/queries/useCreateSale";
 
 import type { Product } from "@/types/product";
 
