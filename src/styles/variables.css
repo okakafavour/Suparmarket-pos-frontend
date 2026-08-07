@@ -10,6 +10,7 @@
   --primary-hover: #1d4ed8;
   --primary-soft: #dbeafe;
 
+
   /* App */
 
   --background: #f3f6fb;
@@ -17,10 +18,12 @@
   --surface-2: #f8fafc;
   --surface-hover: #eef4fb;
 
+
   /* Cards */
 
   --card: #ffffff;
   --card-hover: #fafcff;
+
 
   /* Text */
 
@@ -28,13 +31,16 @@
   --text-secondary: #475569;
   --text-muted: #94a3b8;
 
+
   /* Borders */
 
   --border: #e2e8f0;
 
+
   /* Icons */
 
   --icon: #64748b;
+
 
   /* Shadows */
 
@@ -42,11 +48,13 @@
   --shadow-md: 0 12px 30px rgba(15,23,42,.08);
   --shadow-lg: 0 25px 50px rgba(15,23,42,.10);
 
+
   /* Status */
 
   --success: #22c55e;
   --warning: #f59e0b;
   --danger: #ef4444;
+
 
   /* Radius */
 
@@ -54,13 +62,24 @@
   --radius-md: 18px;
   --radius-lg: 28px;
 
+
   /* Layout */
 
   --sidebar-width: 280px;
   --header-height: 80px;
 
+
+  /* Transition */
+
   --transition: .3s ease;
+
+
+  /* Scrollbar */
+
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-thumb-hover: #94a3b8;
 }
+
 
 /* ==========================================================
    DARK THEME
@@ -95,4 +114,37 @@ html.dark {
   --shadow-md: 0 0 0 transparent;
 
   --shadow-lg: 0 0 0 transparent;
+
+
+  /* Scrollbar */
+
+  --scrollbar-thumb: #334155;
+  --scrollbar-thumb-hover: #475569;
+}
+
+
+/* ==========================================================
+   CUSTOM SCROLLBAR
+========================================================== */
+
+.custom-scrollbar {
+  overflow-y: auto;
+}
+
+/* Chrome, Edge, Safari, Opera */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
 }

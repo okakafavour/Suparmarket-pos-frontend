@@ -16,6 +16,8 @@ import Sales from "@/pages/Sales/Sales";
 import Customers from "@/pages/Customers/Customers";
 import Suppliers from "@/pages/Suppliers/Suppliers";
 import Purchases from "@/pages/Purchases/Purchases";
+import Payments from "@/pages/Payments/Payments";
+import Reports from "@/pages/Reports/Reports";
 
 export default function AppRoutes() {
   return (
@@ -68,6 +70,16 @@ export default function AppRoutes() {
           <Route
             path="/purchases"
             element={<Purchases />}
+          />
+
+          <Route
+            path="/payments"
+            element={<Payments />}
+          />
+
+          <Route
+            path="/reports"
+            element={<Reports />}
           />
         </Route>
 
