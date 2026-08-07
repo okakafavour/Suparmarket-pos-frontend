@@ -55,8 +55,8 @@ export default function PurchaseForm({
 
   return (
     <div className="space-y-6">
-      {/* Supplier */}
 
+      {/* Supplier */}
       <div>
         <label className="mb-2 block text-sm font-medium">
           Supplier
@@ -67,14 +67,20 @@ export default function PurchaseForm({
           onChange={(e) =>
             setSupplierId(e.target.value)
           }
-          className="h-12 w-full rounded-2xl border border-[color:var(--border)] bg-transparent px-4 outline-none"
+          className="h-12 w-full rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] px-4 text-[color:var(--text)] outline-none"
         >
-          <option value="">Select Supplier</option>
+          <option
+            value=""
+            className="bg-[color:var(--surface)] text-[color:var(--text)]"
+          >
+            Select Supplier
+          </option>
 
           {suppliers.map((supplier) => (
             <option
               key={supplier.id}
               value={supplier.id}
+              className="bg-[color:var(--surface)] text-[color:var(--text)]"
             >
               {supplier.name}
             </option>
@@ -83,13 +89,13 @@ export default function PurchaseForm({
       </div>
 
       {/* Items */}
-
       <div className="space-y-4">
         {items.map((item, index) => (
           <div
             key={index}
             className="grid gap-3 md:grid-cols-4"
           >
+            {/* Product */}
             <select
               value={item.product_id}
               onChange={(e) =>
@@ -99,9 +105,12 @@ export default function PurchaseForm({
                   e.target.value
                 )
               }
-              className="h-12 rounded-2xl border border-[color:var(--border)] px-3"
+              className="h-12 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] px-3 text-[color:var(--text)] outline-none"
             >
-              <option value="">
+              <option
+                value=""
+                className="bg-[color:var(--surface)] text-[color:var(--text)]"
+              >
                 Select Product
               </option>
 
@@ -109,12 +118,14 @@ export default function PurchaseForm({
                 <option
                   key={product.ID}
                   value={product.ID}
+                  className="bg-[color:var(--surface)] text-[color:var(--text)]"
                 >
                   {product.Name}
                 </option>
               ))}
             </select>
 
+            {/* Quantity */}
             <input
               type="number"
               min={1}
@@ -127,9 +138,10 @@ export default function PurchaseForm({
                 )
               }
               placeholder="Quantity"
-              className="h-12 rounded-2xl border border-[color:var(--border)] px-3"
+              className="h-12 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] px-3 text-[color:var(--text)] outline-none"
             />
 
+            {/* Unit Cost */}
             <input
               type="number"
               min={0}
@@ -142,15 +154,14 @@ export default function PurchaseForm({
                 )
               }
               placeholder="Unit Cost"
-              className="h-12 rounded-2xl border border-[color:var(--border)] px-3"
+              className="h-12 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] px-3 text-[color:var(--text)] outline-none"
             />
 
+            {/* Remove */}
             <button
               type="button"
-              onClick={() =>
-                removeItem(index)
-              }
-              className="rounded-2xl border border-red-300 px-4 text-red-600 hover:bg-red-50"
+              onClick={() => removeItem(index)}
+              className="rounded-2xl border border-red-300 px-4 text-red-600 transition hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950/30"
             >
               Remove
             </button>
@@ -158,10 +169,11 @@ export default function PurchaseForm({
         ))}
       </div>
 
+      {/* Add Item */}
       <button
         type="button"
         onClick={addItem}
-        className="rounded-xl border border-blue-300 px-5 py-2 text-blue-600 hover:bg-blue-50"
+        className="rounded-xl border border-blue-300 px-5 py-2 text-blue-600 transition hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-950/30"
       >
         + Add Item
       </button>
