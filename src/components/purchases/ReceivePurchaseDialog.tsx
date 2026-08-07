@@ -20,11 +20,16 @@ export default function ReceivePurchaseDialog({
   if (!open || !purchase) return null;
 
   async function handleReceive() {
-    if (!purchase) return;
-    const purchaseId = purchase.id;
-    await receivePurchase.mutateAsync(purchaseId);
+  if (!purchase) return;
+
+  try {
+    await receivePurchase.mutateAsync(purchase.id);
+
     onClose();
+  } catch (error) {
+    console.error("Failed to receive purchase:", error);
   }
+}
 
   return (
     <>
