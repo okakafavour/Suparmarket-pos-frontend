@@ -14,23 +14,32 @@ interface AuthContextType {
   isAuthenticated: boolean;
 
   login: (token: string, user: User) => void;
+  updateUser: (user: User) => void;
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext =
+  createContext<AuthContextType | null>(null);
 
 interface Props {
   children: ReactNode;
 }
 
-export function AuthProvider({ children }: Props) {
-  const [token, setToken] = useState<string | null>(null);
+export function AuthProvider({
+  children,
+}: Props) {
+  const [token, setToken] =
+    useState<string | null>(null);
 
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] =
+    useState<User | null>(null);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
+    const storedToken =
+      localStorage.getItem("token");
+
+    const storedUser =
+      localStorage.getItem("user");
 
     if (storedToken) {
       setToken(storedToken);
@@ -38,7 +47,9 @@ export function AuthProvider({ children }: Props) {
 
     if (storedUser) {
       try {
-        const parsedUser: User = JSON.parse(storedUser);
+        const parsedUser: User =
+          JSON.parse(storedUser);
+
         setUser(parsedUser);
       } catch (error) {
         console.error(
@@ -52,8 +63,14 @@ export function AuthProvider({ children }: Props) {
     }
   }, []);
 
-  function login(token: string, user: User) {
-    localStorage.setItem("token", token);
+  function login(
+    token: string,
+    user: User
+  ) {
+    localStorage.setItem(
+      "token",
+      token
+    );
 
     localStorage.setItem(
       "user",
@@ -62,6 +79,17 @@ export function AuthProvider({ children }: Props) {
 
     setToken(token);
     setUser(user);
+  }
+
+  function updateUser(
+    updatedUser: User
+  ) {
+    localStorage.setItem(
+      "user",
+      JSON.stringify(updatedUser)
+    );
+
+    setUser(updatedUser);
   }
 
   function logout() {
@@ -79,6 +107,7 @@ export function AuthProvider({ children }: Props) {
         token,
         isAuthenticated: !!token,
         login,
+        updateUser,
         logout,
       }}
     >
@@ -88,7 +117,8 @@ export function AuthProvider({ children }: Props) {
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
+  const context =
+    useContext(AuthContext);
 
   if (!context) {
     throw new Error(

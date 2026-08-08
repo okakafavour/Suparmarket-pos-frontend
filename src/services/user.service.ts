@@ -1,4 +1,5 @@
 import api from "@/lib/axios";
+
 import type {
   User,
   UserRole,
@@ -21,24 +22,39 @@ export interface UpdateUserPayload {
   role: UserRole;
 }
 
+export interface UpdateProfilePayload {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+}
+
 export interface UpdateUserStatusPayload {
   is_active: boolean;
 }
 
 export async function getUsers(): Promise<User[]> {
   const { data } = await api.get("/users");
+
   return data.data;
 }
 
-export async function getUser(id: string): Promise<User> {
+export async function getUser(
+  id: string
+): Promise<User> {
   const { data } = await api.get(`/users/${id}`);
+
   return data.data;
 }
 
 export async function createUser(
   payload: CreateUserPayload
 ) {
-  const { data } = await api.post("/users", payload);
+  const { data } = await api.post(
+    "/users",
+    payload
+  );
+
   return data;
 }
 
@@ -54,6 +70,17 @@ export async function updateUser(
   return data;
 }
 
+export async function updateProfile(
+  payload: UpdateProfilePayload
+): Promise<User> {
+  const { data } = await api.put(
+    "/profile",
+    payload
+  );
+
+  return data.data;
+}
+
 export async function updateUserStatus(
   id: string,
   payload: UpdateUserStatusPayload
@@ -66,7 +93,9 @@ export async function updateUserStatus(
   return data;
 }
 
-export async function deleteUser(id: string) {
+export async function deleteUser(
+  id: string
+) {
   const { data } = await api.delete(
     `/users/${id}`
   );
