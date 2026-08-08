@@ -6,19 +6,13 @@ import {
   type ReactNode,
 } from "react";
 
-export interface User {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  role: string;
-  is_active: boolean;
-}
+import type { User } from "@/types/user";
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+
   login: (token: string, user: User) => void;
   logout: () => void;
 }
@@ -43,12 +37,24 @@ export function AuthProvider({ children }: Props) {
     }
 
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        const parsedUser: User = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error(
+          "Failed to parse stored user:",
+          error
+        );
+
+        localStorage.removeItem("user");
+        setUser(null);
+      }
     }
   }, []);
 
   function login(token: string, user: User) {
     localStorage.setItem("token", token);
+
     localStorage.setItem(
       "user",
       JSON.stringify(user)

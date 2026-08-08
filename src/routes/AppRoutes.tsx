@@ -20,6 +20,7 @@ import Payments from "@/pages/Payments/Payments";
 import Reports from "@/pages/Reports/Reports";
 import Users from "@/pages/Users/Users";
 import Settings from "@/pages/Settings/Settings";
+import Profile from "@/pages/Profile/Profile";
 
 export default function AppRoutes() {
   return (
@@ -92,6 +93,11 @@ export default function AppRoutes() {
           <Route
             path="/settings"
             element={<Settings />}
+          />
+
+          <Route
+            path="/profile"
+            element={<Profile />}
           />
         </Route>
 
