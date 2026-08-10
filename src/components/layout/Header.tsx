@@ -38,30 +38,34 @@ export default function Header() {
   };
 
   const fetchNotifications = async () => {
-    try {
-      const token = getToken();
+  try {
+    setLoading(true);
 
-      if (!token) {
-        return;
-      }
+    const token = getToken();
 
-      const response = await fetch(`${API_URL}/notifications`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch notifications");
-      }
-
-      const result = await response.json();
-
-      setNotifications(result.data || []);
-    } catch (error) {
-      console.error("Failed to fetch notifications:", error);
+    if (!token) {
+      return;
     }
-  };
+
+    const response = await fetch(`${API_URL}/notifications`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch notifications");
+    }
+
+    const result = await response.json();
+
+    setNotifications(result.data || []);
+  } catch (error) {
+    console.error("Failed to fetch notifications:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const markAsRead = async (id: string) => {
     try {

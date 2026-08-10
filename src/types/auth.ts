@@ -1,3 +1,5 @@
+import type { UserRole } from "./user";
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -8,7 +10,7 @@ export interface User {
   first_name: string;
   last_name: string;
   email: string;
-  role: string;
+  role: UserRole;
   is_active: boolean;
 }
 
