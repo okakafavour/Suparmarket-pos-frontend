@@ -9,9 +9,6 @@ import Dashboard from "@/pages/Dashboard/Dashboard";
 import Inventory from "@/pages/Inventory/Inventory";
 import Login from "@/pages/Auth/Login";
 import Products from "@/pages/Products/Products";
-
-import ProtectedRoute from "./ProtectedRoute";
-import GuestRoute from "./GuestRoute";
 import Sales from "@/pages/Sales/Sales";
 import Customers from "@/pages/Customers/Customers";
 import Suppliers from "@/pages/Suppliers/Suppliers";
@@ -22,13 +19,18 @@ import Users from "@/pages/Users/Users";
 import Settings from "@/pages/Settings/Settings";
 import Profile from "@/pages/Profile/Profile";
 
+import ProtectedRoute from "./ProtectedRoute";
+import GuestRoute from "./GuestRoute";
+import RoleProtectedRoute from "./RoleProtectedRoute";
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
-
       <Routes>
 
-        {/* Public */}
+        {/* =====================================================
+            PUBLIC ROUTES
+        ====================================================== */}
 
         <Route element={<GuestRoute />}>
           <Route
@@ -37,71 +39,273 @@ export default function AppRoutes() {
           />
         </Route>
 
-        {/* Protected */}
+
+        {/* =====================================================
+            AUTHENTICATED ROUTES
+        ====================================================== */}
 
         <Route element={<ProtectedRoute />}>
+
+          {/* =================================================
+              DASHBOARD
+
+              Admin + Manager + Cashier
+          ================================================== */}
+
           <Route
             path="/dashboard"
-            element={<Dashboard />}
+            element={
+              <RoleProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                  "cashier",
+                ]}
+              >
+                <Dashboard />
+              </RoleProtectedRoute>
+            }
           />
+
+
+          {/* =================================================
+              INVENTORY
+
+              Admin + Manager
+          ================================================== */}
 
           <Route
             path="/inventory"
-            element={<Inventory />}
+            element={
+              <RoleProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                ]}
+              >
+                <Inventory />
+              </RoleProtectedRoute>
+            }
           />
+
+
+          {/* =================================================
+              PRODUCTS
+
+              Admin + Manager + Cashier
+          ================================================== */}
 
           <Route
             path="/products"
-            element={<Products />}
+            element={
+              <RoleProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                  "cashier",
+                ]}
+              >
+                <Products />
+              </RoleProtectedRoute>
+            }
           />
+
+
+          {/* =================================================
+              SALES
+
+              Admin + Manager + Cashier
+          ================================================== */}
 
           <Route
             path="/sales"
-            element={<Sales />}
+            element={
+              <RoleProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                  "cashier",
+                ]}
+              >
+                <Sales />
+              </RoleProtectedRoute>
+            }
           />
+
+
+          {/* =================================================
+              CUSTOMERS
+
+              Admin + Manager + Cashier
+          ================================================== */}
 
           <Route
             path="/customers"
-            element={<Customers />}
+            element={
+              <RoleProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                  "cashier",
+                ]}
+              >
+                <Customers />
+              </RoleProtectedRoute>
+            }
           />
+
+
+          {/* =================================================
+              SUPPLIERS
+
+              Admin + Manager
+          ================================================== */}
 
           <Route
             path="/suppliers"
-            element={<Suppliers />}
+            element={
+              <RoleProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                ]}
+              >
+                <Suppliers />
+              </RoleProtectedRoute>
+            }
           />
+
+
+          {/* =================================================
+              PURCHASES
+
+              Admin + Manager
+          ================================================== */}
 
           <Route
             path="/purchases"
-            element={<Purchases />}
+            element={
+              <RoleProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                ]}
+              >
+                <Purchases />
+              </RoleProtectedRoute>
+            }
           />
+
+
+          {/* =================================================
+              PAYMENTS
+
+              Admin + Manager + Cashier
+          ================================================== */}
 
           <Route
             path="/payments"
-            element={<Payments />}
+            element={
+              <RoleProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                  "cashier",
+                ]}
+              >
+                <Payments />
+              </RoleProtectedRoute>
+            }
           />
+
+
+          {/* =================================================
+              REPORTS
+
+              Admin + Manager
+          ================================================== */}
 
           <Route
             path="/reports"
-            element={<Reports />}
+            element={
+              <RoleProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                ]}
+              >
+                <Reports />
+              </RoleProtectedRoute>
+            }
           />
+
+
+          {/* =================================================
+              USERS
+
+              ADMIN ONLY
+          ================================================== */}
 
           <Route
             path="/users"
-            element={<Users />}
+            element={
+              <RoleProtectedRoute
+                allowedRoles={["admin"]}
+              >
+                <Users />
+              </RoleProtectedRoute>
+            }
           />
+
+
+          {/* =================================================
+              SETTINGS
+
+              Admin + Manager
+          ================================================== */}
 
           <Route
             path="/settings"
-            element={<Settings />}
+            element={
+              <RoleProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                ]}
+              >
+                <Settings />
+              </RoleProtectedRoute>
+            }
           />
+
+
+          {/* =================================================
+              PROFILE
+
+              Everyone who is authenticated
+          ================================================== */}
 
           <Route
             path="/profile"
-            element={<Profile />}
+            element={
+              <RoleProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "manager",
+                  "cashier",
+                ]}
+              >
+                <Profile />
+              </RoleProtectedRoute>
+            }
           />
+
         </Route>
 
-        {/* Redirect */}
+
+        {/* =====================================================
+            DEFAULT REDIRECT
+        ====================================================== */}
 
         <Route
           path="*"
@@ -114,7 +318,6 @@ export default function AppRoutes() {
         />
 
       </Routes>
-
     </BrowserRouter>
   );
 }

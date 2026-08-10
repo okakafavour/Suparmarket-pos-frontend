@@ -12,25 +12,21 @@ export default function DashboardLayout({
 }: DashboardLayoutProps) {
   return (
     <div
-  className="
-    min-h-screen
-    bg-[color:var(--background)]
-    text-[color:var(--text)]
-  "
->
-
+      className="
+        min-h-screen
+        bg-[color:var(--background)]
+        text-[color:var(--text)]
+      "
+    >
       <Sidebar />
 
       <div className="ml-0 lg:ml-[308px]">
-
         <Header />
 
-        <main className="px-6 pb-8 pt-28">
+        <main className="px-4 pb-8 pt-[120px] sm:px-6">
           {children}
         </main>
-
       </div>
-
     </div>
   );
 }

@@ -1,24 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  AlertTriangle,
   Bell,
   CalendarDays,
+  Check,
   ChevronDown,
   LogOut,
   Menu,
   Moon,
+  Package,
+  RefreshCw,
   Search,
   Settings,
-  Sun,
-  User,
-  X,
-  AlertTriangle,
-  Package,
   ShoppingCart,
-  RefreshCw,
-  UserPlus,
-  Check,
+  Sun,
   Trash2,
+  User,
+  UserPlus,
+  X,
 } from "lucide-react";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -48,6 +48,10 @@ export default function Header() {
   const [loadingNotifications, setLoadingNotifications] =
     useState(false);
 
+  // =====================================================
+  // DATE
+  // =====================================================
+
   const today = useMemo(
     () =>
       new Date().toLocaleDateString("en-US", {
@@ -57,6 +61,10 @@ export default function Header() {
       }),
     []
   );
+
+  // =====================================================
+  // USER
+  // =====================================================
 
   const initials = useMemo(() => {
     if (!user) return "A";
@@ -139,6 +147,14 @@ export default function Header() {
   }
 
   // =====================================================
+  // MOBILE MENU
+  // =====================================================
+
+  function handleMobileMenu() {
+    console.log("Mobile menu clicked");
+  }
+
+  // =====================================================
   // NOTIFICATIONS
   // =====================================================
 
@@ -157,7 +173,9 @@ export default function Header() {
   // MARK ONE NOTIFICATION AS READ
   // =====================================================
 
-  async function handleMarkAsRead(notification: Notification) {
+  async function handleMarkAsRead(
+    notification: Notification
+  ) {
     if (notification.is_read) {
       return;
     }
@@ -270,7 +288,9 @@ export default function Header() {
   // NOTIFICATION ICON
   // =====================================================
 
-  function getNotificationIcon(type: Notification["type"]) {
+  function getNotificationIcon(
+    type: Notification["type"]
+  ) {
     switch (type) {
       case "low_stock":
         return <AlertTriangle size={18} />;
@@ -327,29 +347,66 @@ export default function Header() {
   }
 
   // =====================================================
-  // MOBILE MENU
+  // HEADER
   // =====================================================
 
-  function handleMobileMenu() {
-    console.log("Mobile menu clicked");
-  }
-
   return (
-    <header className="flex w-full items-center justify-between gap-4">
+    <header
+      className="
+        fixed
+        left-4
+        right-4
+        top-4
+        z-40
+        flex
+        h-[76px]
+        items-center
+        justify-between
+        rounded-[28px]
+        border
+        border-[var(--border)]
+        bg-[color:var(--surface)]
+        px-4
+        shadow-xl
+        backdrop-blur-xl
+        transition-all
+        duration-300
+        sm:px-5
+        lg:left-[324px]
+        lg:right-6
+      "
+    >
       {/* =====================================================
           LEFT SIDE
       ====================================================== */}
 
-      <div className="flex min-w-0 items-center gap-4">
-        {/* Mobile menu */}
+      <div className="flex min-w-0 items-center gap-3">
+        {/* Mobile Menu */}
 
         <button
           type="button"
           onClick={handleMobileMenu}
-          className="flex h-11 w-11 items-center justify-center rounded-xl transition hover:bg-[color:var(--surface-hover)] lg:hidden"
+          className="
+            flex
+            h-11
+            w-11
+            shrink-0
+            items-center
+            justify-center
+            rounded-2xl
+            border
+            border-[var(--border)]
+            bg-[color:var(--background)]
+            text-[color:var(--text)]
+            transition-all
+            duration-300
+            hover:scale-105
+            hover:bg-[color:var(--surface-hover)]
+            lg:hidden
+          "
           aria-label="Open menu"
         >
-          <Menu size={21} />
+          <Menu size={20} />
         </button>
 
         {/* Search */}
@@ -357,7 +414,13 @@ export default function Header() {
         <div className="relative hidden md:block">
           <Search
             size={18}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-[color:var(--text-muted)]"
+            className="
+              absolute
+              left-4
+              top-1/2
+              -translate-y-1/2
+              text-[color:var(--text-muted)]
+            "
           />
 
           <input
@@ -365,7 +428,7 @@ export default function Header() {
             placeholder="Search products, customers, suppliers..."
             className="
               h-12
-              w-[390px]
+              w-[300px]
               rounded-2xl
               border
               border-[var(--border)]
@@ -381,6 +444,7 @@ export default function Header() {
               focus:border-blue-500
               focus:ring-4
               focus:ring-blue-500/10
+              lg:w-[390px]
             "
           />
         </div>
@@ -390,15 +454,28 @@ export default function Header() {
           RIGHT SIDE
       ====================================================== */}
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* =================================================
             DATE
         ================================================== */}
 
-        <div className="hidden items-center gap-3 rounded-2xl bg-[color:var(--background)] px-4 py-3 xl:flex">
+        <div
+          className="
+            hidden
+            h-12
+            items-center
+            gap-3
+            rounded-2xl
+            border
+            border-[var(--border)]
+            bg-[color:var(--background)]
+            px-4
+            xl:flex
+          "
+        >
           <CalendarDays
-            size={18}
-            className="text-blue-600"
+            size={17}
+            className="text-blue-500"
           />
 
           <span className="text-sm font-medium text-[color:var(--text)]">
@@ -407,7 +484,7 @@ export default function Header() {
         </div>
 
         {/* =================================================
-            THEME BUTTON
+            THEME
         ================================================== */}
 
         <button
@@ -418,9 +495,12 @@ export default function Header() {
             flex
             h-12
             w-12
+            shrink-0
             items-center
             justify-center
             rounded-2xl
+            border
+            border-[var(--border)]
             bg-[color:var(--background)]
             transition-all
             duration-300
@@ -455,9 +535,12 @@ export default function Header() {
               flex
               h-12
               w-12
+              shrink-0
               items-center
               justify-center
               rounded-2xl
+              border
+              border-[var(--border)]
               bg-[color:var(--background)]
               transition-all
               duration-300
@@ -469,8 +552,6 @@ export default function Header() {
               size={19}
               className="text-[color:var(--text)]"
             />
-
-            {/* Real unread count */}
 
             {unreadCount > 0 && (
               <span
@@ -501,7 +582,7 @@ export default function Header() {
           </button>
 
           {/* =================================================
-              NOTIFICATIONS DROPDOWN
+              NOTIFICATION DROPDOWN
           ================================================== */}
 
           {notificationsOpen && (
@@ -514,16 +595,26 @@ export default function Header() {
                 w-[380px]
                 max-w-[calc(100vw-2rem)]
                 overflow-hidden
-                rounded-3xl
+                rounded-[26px]
                 border
                 border-[var(--border)]
                 bg-[color:var(--surface)]
                 shadow-2xl
               "
             >
-              {/* Header */}
+              {/* Dropdown Header */}
 
-              <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  border-b
+                  border-[var(--border)]
+                  px-5
+                  py-4
+                "
+              >
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold text-[color:var(--text)]">
@@ -531,7 +622,19 @@ export default function Header() {
                     </h3>
 
                     {unreadCount > 0 && (
-                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600 dark:bg-red-950/40 dark:text-red-400">
+                      <span
+                        className="
+                          rounded-full
+                          bg-red-100
+                          px-2
+                          py-0.5
+                          text-[10px]
+                          font-bold
+                          text-red-600
+                          dark:bg-red-950/40
+                          dark:text-red-400
+                        "
+                      >
                         {unreadCount} new
                       </span>
                     )}
@@ -548,7 +651,15 @@ export default function Header() {
                       type="button"
                       onClick={handleMarkAllAsRead}
                       title="Mark all as read"
-                      className="rounded-lg p-2 text-blue-600 transition hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/30"
+                      className="
+                        rounded-lg
+                        p-2
+                        text-blue-600
+                        transition
+                        hover:bg-blue-50
+                        dark:text-blue-400
+                        dark:hover:bg-blue-950/30
+                      "
                     >
                       <Check size={17} />
                     </button>
@@ -560,19 +671,34 @@ export default function Header() {
                       setNotificationsOpen(false)
                     }
                     aria-label="Close notifications"
-                    className="rounded-lg p-2 transition hover:bg-[color:var(--surface-hover)]"
+                    className="
+                      rounded-lg
+                      p-2
+                      transition
+                      hover:bg-[color:var(--surface-hover)]
+                    "
                   >
                     <X size={17} />
                   </button>
                 </div>
               </div>
 
-              {/* Notification content */}
+              {/* Notification Content */}
 
               <div className="max-h-[420px] overflow-y-auto">
                 {loadingNotifications ? (
                   <div className="flex flex-col items-center justify-center px-5 py-12">
-                    <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600" />
+                    <div
+                      className="
+                        h-7
+                        w-7
+                        animate-spin
+                        rounded-full
+                        border-2
+                        border-slate-200
+                        border-t-blue-600
+                      "
+                    />
 
                     <p className="mt-3 text-sm text-[color:var(--text-muted)]">
                       Loading notifications...
@@ -580,7 +706,19 @@ export default function Header() {
                   </div>
                 ) : notifications.length === 0 ? (
                   <div className="flex flex-col items-center justify-center px-5 py-12 text-center">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 dark:bg-slate-800">
+                    <div
+                      className="
+                        flex
+                        h-14
+                        w-14
+                        items-center
+                        justify-center
+                        rounded-2xl
+                        bg-slate-100
+                        text-slate-400
+                        dark:bg-slate-800
+                      "
+                    >
                       <Bell size={24} />
                     </div>
 
@@ -589,7 +727,8 @@ export default function Header() {
                     </h4>
 
                     <p className="mt-1 max-w-[250px] text-xs leading-5 text-[color:var(--text-muted)]">
-                      You're all caught up. New system alerts will appear here.
+                      You're all caught up. New system
+                      alerts will appear here.
                     </p>
                   </div>
                 ) : (
@@ -710,7 +849,17 @@ export default function Header() {
               {/* Footer */}
 
               {notifications.length > 0 && (
-                <div className="flex items-center justify-between border-t border-[var(--border)] px-5 py-3">
+                <div
+                  className="
+                    flex
+                    items-center
+                    justify-between
+                    border-t
+                    border-[var(--border)]
+                    px-5
+                    py-3
+                  "
+                >
                   <button
                     type="button"
                     onClick={handleDeleteAllNotifications}
@@ -753,12 +902,10 @@ export default function Header() {
         </div>
 
         {/* =================================================
-            PROFILE MENU
+            PROFILE
         ================================================== */}
 
         <div className="relative">
-          {/* Profile button */}
-
           <button
             type="button"
             onClick={() => {
@@ -768,33 +915,55 @@ export default function Header() {
             aria-label="Open profile menu"
             className="
               flex
+              h-12
               items-center
-              gap-3
+              gap-2
               rounded-2xl
               border
               border-[var(--border)]
-              bg-[color:var(--surface)]
-              px-3
-              py-2
+              bg-[color:var(--background)]
+              px-2
               transition-all
               duration-300
-              hover:shadow-xl
+              hover:shadow-lg
+              sm:gap-3
+              sm:px-3
             "
           >
             {/* Avatar */}
 
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 font-bold text-white shadow-lg">
+            <div
+              className="
+                flex
+                h-9
+                w-9
+                shrink-0
+                items-center
+                justify-center
+                rounded-full
+                bg-gradient-to-r
+                from-blue-600
+                to-indigo-600
+                text-xs
+                font-bold
+                text-white
+                shadow-lg
+                sm:h-10
+                sm:w-10
+                sm:text-sm
+              "
+            >
               {initials}
             </div>
 
-            {/* Name + role */}
+            {/* Name + Role */}
 
             <div className="hidden text-left lg:block">
-              <h4 className="font-semibold text-[color:var(--text)]">
+              <h4 className="text-sm font-semibold text-[color:var(--text)]">
                 {fullName}
               </h4>
 
-              <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+              <p className="mt-0.5 text-xs text-[color:var(--text-muted)]">
                 {role}
               </p>
             </div>
@@ -802,22 +971,58 @@ export default function Header() {
             {/* Arrow */}
 
             <ChevronDown
-              size={18}
-              className={`text-[color:var(--text-muted)] transition-transform duration-300 ${
-                openMenu ? "rotate-180" : ""
-              }`}
+              size={17}
+              className={`
+                hidden
+                text-[color:var(--text-muted)]
+                transition-transform
+                duration-300
+                sm:block
+                ${openMenu ? "rotate-180" : ""}
+              `}
             />
           </button>
 
-          {/* Profile dropdown */}
+          {/* =================================================
+              PROFILE DROPDOWN
+          ================================================== */}
 
           {openMenu && (
-            <div className="absolute right-0 z-50 mt-3 w-72 overflow-hidden rounded-3xl border border-[var(--border)] bg-[color:var(--surface)] shadow-2xl">
-              {/* USER INFORMATION */}
+            <div
+              className="
+                absolute
+                right-0
+                z-50
+                mt-3
+                w-72
+                overflow-hidden
+                rounded-[26px]
+                border
+                border-[var(--border)]
+                bg-[color:var(--surface)]
+                shadow-2xl
+              "
+            >
+              {/* User Information */}
 
               <div className="border-b border-[var(--border)] p-5">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 font-bold text-white">
+                  <div
+                    className="
+                      flex
+                      h-11
+                      w-11
+                      shrink-0
+                      items-center
+                      justify-center
+                      rounded-full
+                      bg-gradient-to-r
+                      from-blue-600
+                      to-indigo-600
+                      font-bold
+                      text-white
+                    "
+                  >
                     {initials}
                   </div>
 
@@ -833,7 +1038,7 @@ export default function Header() {
                 </div>
               </div>
 
-              {/* MY PROFILE */}
+              {/* My Profile */}
 
               <button
                 type="button"
@@ -855,7 +1060,7 @@ export default function Header() {
                 <span>My Profile</span>
               </button>
 
-              {/* SETTINGS */}
+              {/* Settings */}
 
               <button
                 type="button"
@@ -880,7 +1085,7 @@ export default function Header() {
                 <span>Settings</span>
               </button>
 
-              {/* THEME */}
+              {/* Theme */}
 
               <button
                 type="button"
@@ -910,7 +1115,7 @@ export default function Header() {
                 </span>
               </button>
 
-              {/* LOGOUT */}
+              {/* Logout */}
 
               <button
                 type="button"
