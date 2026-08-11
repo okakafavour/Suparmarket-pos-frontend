@@ -1,3 +1,6 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
 import {
   LayoutDashboard,
   Boxes,
@@ -24,6 +27,11 @@ interface MenuItem {
   icon: typeof LayoutDashboard;
   path: string;
   roles: UserRole[];
+}
+
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const menu: MenuItem[] = [
@@ -105,17 +113,26 @@ const menu: MenuItem[] = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({
+  isOpen,
+  onClose,
+}: SidebarProps) {
   const { user } = useAuth();
+  const location = useLocation();
+
+  // =====================================================
+  // USER ROLE
+  // =====================================================
 
   /*
-   * Normalize the role coming from the backend.
-   *
-   * Example:
-   * "Admin" -> "admin"
-   * "MANAGER" -> "manager"
-   * "Cashier" -> "cashier"
-   */
+    Normalize the role coming from the backend.
+
+    Examples:
+    "Admin"   -> "admin"
+    "MANAGER" -> "manager"
+    "Cashier" -> "cashier"
+  */
+
   const rawRole = user?.role?.toLowerCase();
 
   const userRole: UserRole =
@@ -125,48 +142,86 @@ export default function Sidebar() {
       ? rawRole
       : "cashier";
 
+  // =====================================================
+  // ROLE-BASED MENU
+  // =====================================================
+
   /*
-   * Only show menu items allowed for the
-   * currently logged-in user's role.
-   */
+    Only show menu items allowed for the
+    currently logged-in user's role.
+  */
+
   const visibleMenu = menu.filter((item) =>
     item.roles.includes(userRole)
   );
 
-  /*
-   * User initials for the bottom profile card.
-   */
+  // =====================================================
+  // USER INITIALS
+  // =====================================================
+
   const initials = `${user?.first_name?.[0] ?? ""}${
     user?.last_name?.[0] ?? ""
   }`.toUpperCase();
 
-  /*
-   * Friendly role name for display.
-   */
+  // =====================================================
+  // ROLE LABEL
+  // =====================================================
+
   const roleLabel =
     userRole.charAt(0).toUpperCase() +
     userRole.slice(1);
 
+  // =====================================================
+  // CLOSE SIDEBAR WHEN ROUTE CHANGES
+  // =====================================================
+
+  useEffect(() => {
+    if (isOpen) {
+      onClose();
+    }
+  }, [location.pathname]);
+
+  // =====================================================
+  // SIDEBAR
+  // =====================================================
+
   return (
     <aside
-      className="
+      className={`
         fixed
-        left-5
-        top-5
-        z-40
-        hidden
-        h-[calc(100vh-2.5rem)]
-        w-[235px]
+        left-0
+        top-0
+        z-50
+        flex
+        h-screen
+        w-[288px]
         flex-col
         overflow-hidden
-        rounded-[28px]
+        rounded-r-[32px]
         border
         border-[color:var(--border)]
         bg-[color:var(--surface)]
-        text-[color:var(--text)]
-        shadow-sm
-        lg:flex
-      "
+        shadow-2xl
+        transition-transform
+        duration-300
+        ease-out
+
+        /* Desktop */
+        lg:bottom-4
+        lg:left-4
+        lg:top-4
+        lg:h-[calc(100vh-2rem)]
+        lg:translate-x-0
+        lg:rounded-[32px]
+        lg:shadow-xl
+
+        /* Mobile */
+        ${
+          isOpen
+            ? "translate-x-0"
+            : "-translate-x-full"
+        }
+      `}
     >
       {/* =====================================================
           LOGO
@@ -178,12 +233,13 @@ export default function Sidebar() {
 
       {/* =====================================================
           NAVIGATION
-          
-          Only this section scrolls.
-          The logo and bottom user card remain fixed.
-          
-          The scrollbar is intentionally subtle so it does
-          not look like a large visible scrollbar.
+
+          Only the navigation area scrolls.
+
+          The scrollbar is intentionally very subtle:
+          - Invisible normally
+          - Appears slightly when hovering
+          - Only 4px wide
       ====================================================== */}
 
       <nav
@@ -209,19 +265,28 @@ export default function Sidebar() {
         "
       >
         {visibleMenu.map((item) => (
-          <SidebarItem
+          <div
             key={item.title}
-            title={item.title}
-            icon={item.icon}
-            path={item.path}
-          />
+            onClick={() => {
+              // Close sidebar only on mobile/tablet
+              if (window.innerWidth < 1024) {
+                onClose();
+              }
+            }}
+          >
+            <SidebarItem
+              title={item.title}
+              icon={item.icon}
+              path={item.path}
+            />
+          </div>
         ))}
       </nav>
 
       {/* =====================================================
           USER PROFILE CARD
 
-          This stays at the bottom and never scrolls away.
+          Remains fixed at the bottom.
       ====================================================== */}
 
       <div

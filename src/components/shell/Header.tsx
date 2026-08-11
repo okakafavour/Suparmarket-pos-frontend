@@ -34,7 +34,12 @@ import {
   type Notification,
 } from "@/services/notification.Service";
 
-export default function Header() {
+interface HeaderProps {
+  onMenuClick: () => void;
+}
+export default function Header({
+  onMenuClick,
+}: HeaderProps) {
   const navigate = useNavigate();
 
   const { user, logout } = useAuth();
@@ -150,9 +155,6 @@ export default function Header() {
   // MOBILE MENU
   // =====================================================
 
-  function handleMobileMenu() {
-    console.log("Mobile menu clicked");
-  }
 
   // =====================================================
   // NOTIFICATIONS
@@ -385,7 +387,7 @@ export default function Header() {
 
         <button
           type="button"
-          onClick={handleMobileMenu}
+          onClick={onMenuClick}
           className="
             flex
             h-11
