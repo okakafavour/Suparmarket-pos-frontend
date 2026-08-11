@@ -12,69 +12,163 @@ import {
 import { login } from "@/services/auth.service";
 import { useAuth } from "@/contexts/AuthContext";
 
+const MAX_LOGIN_ATTEMPTS = 3;
+const RETRY_DELAY = 3000;
+
+function wait(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 export default function LoginForm() {
   const navigate = useNavigate();
 
-  const [showPassword, setShowPassword] = useState(false);
   const { login: signIn } = useAuth();
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
 
- async function handleSubmit(
-  e: React.FormEvent<HTMLFormElement>
-) {
-  e.preventDefault();
+  async function handleSubmit(
+    e: React.FormEvent<HTMLFormElement>
+  ) {
+    e.preventDefault();
 
-  setLoading(true);
-  setError("");
+    if (loading) {
+      return;
+    }
 
-  try {
-    console.log("Sending:", {
-      email: email.trim(),
-      password: password.trim(),
-    });
+    const cleanEmail = email.trim();
+    const cleanPassword = password.trim();
 
-    const response = await login({
-      email: email.trim(),
-      password: password.trim(),
-    });
+    if (!cleanEmail || !cleanPassword) {
+      setError("Please enter your email and password.");
+      return;
+    }
 
-      signIn(
-        response.token,
-        response.user
-      );
+    setLoading(true);
+    setError("");
+    setAttempt(0);
 
-    navigate("/dashboard", {
-      replace: true,
-    });
+    for (
+      let currentAttempt = 1;
+      currentAttempt <= MAX_LOGIN_ATTEMPTS;
+      currentAttempt++
+    ) {
+      try {
+        setAttempt(currentAttempt);
 
-  } catch (err: any) {
-    console.log("Full Error:", err);
-    console.log("Response:", err.response);
-    console.log("Response Data:", err.response?.data);
+        console.log(
+          `Login attempt ${currentAttempt}/${MAX_LOGIN_ATTEMPTS}`
+        );
 
-    setError(
-      err.response?.data?.message ||
-      "Invalid email or password."
-    );
+        const response = await login({
+          email: cleanEmail,
+          password: cleanPassword,
+        });
 
-  } finally {
+        console.log("Login successful");
+
+        signIn(response.token, response.user);
+
+        navigate("/dashboard", {
+          replace: true,
+        });
+
+        return;
+      } catch (err: any) {
+        console.error(
+          `Login attempt ${currentAttempt} failed:`,
+          err
+        );
+
+        const status = err?.response?.status;
+
+        const responseMessage =
+          err?.response?.data?.message;
+
+        /*
+         * 401 means the backend received the request
+         * and rejected the credentials.
+         *
+         * Do NOT retry invalid credentials.
+         */
+        if (status === 401) {
+          setError(
+            responseMessage ||
+              "Invalid email or password."
+          );
+
+          setLoading(false);
+          setAttempt(0);
+
+          return;
+        }
+
+        /*
+         * 403 can also mean the account/request was
+         * explicitly rejected by the backend.
+         *
+         * Don't repeatedly send the same request.
+         */
+        if (status === 403) {
+          setError(
+            responseMessage ||
+              "You are not authorized to sign in."
+          );
+
+          setLoading(false);
+          setAttempt(0);
+
+          return;
+        }
+
+        /*
+         * If this wasn't the final attempt,
+         * assume it may be a temporary network,
+         * Render cold-start, timeout, or server problem.
+         */
+        if (currentAttempt < MAX_LOGIN_ATTEMPTS) {
+          setError(
+            `Server is waking up or temporarily unavailable. Retrying... (${currentAttempt}/${MAX_LOGIN_ATTEMPTS})`
+          );
+
+          await wait(RETRY_DELAY);
+
+          continue;
+        }
+
+        /*
+         * All attempts failed.
+         */
+        setError(
+          "Unable to connect to the server. Please check your internet connection and try again."
+        );
+
+        setLoading(false);
+        setAttempt(0);
+
+        return;
+      }
+    }
+
     setLoading(false);
+    setAttempt(0);
   }
-}
 
   return (
-    <div className="w-full max-w-md">
-
-      {/* Header */}
+    <div>
+      {/* =====================================================
+          HEADER
+      ====================================================== */}
 
       <div className="mb-10">
-
         <span className="rounded-full bg-blue-100 px-4 py-1 text-sm font-semibold text-blue-700">
           Secure Access
         </span>
@@ -84,26 +178,29 @@ export default function LoginForm() {
         </h1>
 
         <p className="mt-4 leading-7 text-slate-500">
-          Sign in to continue managing your supermarket with TheftGuard POS.
+          Sign in to continue managing your supermarket
+          with TheftGuard POS.
         </p>
-
       </div>
+
+      {/* =====================================================
+          LOGIN FORM
+      ====================================================== */}
 
       <form
         onSubmit={handleSubmit}
         className="space-y-6"
       >
-
-        {/* Email */}
+        {/* =================================================
+            EMAIL
+        ================================================== */}
 
         <div>
-
           <label className="mb-2 block text-sm font-semibold text-slate-700">
             Email Address
           </label>
 
           <div className="flex items-center rounded-2xl border border-slate-200 bg-white px-4 shadow-sm transition-all duration-300 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
-
             <Mail
               size={20}
               className="text-slate-400"
@@ -118,23 +215,22 @@ export default function LoginForm() {
               }
               required
               autoComplete="email"
-              className="h-14 w-full bg-transparent px-3 outline-none"
+              disabled={loading}
+              className="h-14 w-full bg-transparent px-3 outline-none disabled:cursor-not-allowed disabled:opacity-70"
             />
-
           </div>
-
         </div>
 
-        {/* Password */}
+        {/* =================================================
+            PASSWORD
+        ================================================== */}
 
         <div>
-
           <label className="mb-2 block text-sm font-semibold text-slate-700">
             Password
           </label>
 
           <div className="flex items-center rounded-2xl border border-slate-200 bg-white px-4 shadow-sm transition-all duration-300 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
-
             <Lock
               size={20}
               className="text-slate-400"
@@ -153,15 +249,22 @@ export default function LoginForm() {
               }
               required
               autoComplete="current-password"
-              className="h-14 w-full bg-transparent px-3 outline-none"
+              disabled={loading}
+              className="h-14 w-full bg-transparent px-3 outline-none disabled:cursor-not-allowed disabled:opacity-70"
             />
 
             <button
               type="button"
               onClick={() =>
-                setShowPassword(!showPassword)
+                setShowPassword((previous) => !previous)
               }
-              className="text-slate-400 transition hover:text-blue-600"
+              disabled={loading}
+              className="text-slate-400 transition hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label={
+                showPassword
+                  ? "Hide password"
+                  : "Show password"
+              }
             >
               {showPassword ? (
                 <EyeOff size={20} />
@@ -169,20 +272,37 @@ export default function LoginForm() {
                 <Eye size={20} />
               )}
             </button>
-
           </div>
-
         </div>
 
-        {/* Error */}
+        {/* =================================================
+            ERROR / STATUS
+        ================================================== */}
 
         {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
-            {error}
+          <div
+            className={`rounded-2xl border px-4 py-3 text-sm font-medium ${
+              loading
+                ? "border-blue-200 bg-blue-50 text-blue-600"
+                : "border-red-200 bg-red-50 text-red-600"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              {loading && (
+                <Loader2
+                  size={17}
+                  className="shrink-0 animate-spin"
+                />
+              )}
+
+              <span>{error}</span>
+            </div>
           </div>
         )}
 
-        {/* Login Button */}
+        {/* =================================================
+            LOGIN BUTTON
+        ================================================== */}
 
         <button
           type="submit"
@@ -212,35 +332,31 @@ export default function LoginForm() {
         >
           {loading ? (
             <>
-              <Loader2
-                className="h-5 w-5 animate-spin"
-              />
+              <Loader2 className="h-5 w-5 animate-spin" />
 
-              Signing In...
+              {attempt > 1
+                ? `Retrying... (${attempt}/${MAX_LOGIN_ATTEMPTS})`
+                : "Signing In..."}
             </>
           ) : (
             <>
               Sign In
 
-              <ArrowRight
-                size={20}
-              />
+              <ArrowRight size={20} />
             </>
           )}
         </button>
-
       </form>
 
-      {/* Footer */}
+      {/* =====================================================
+          FOOTER
+      ====================================================== */}
 
       <div className="mt-10 border-t border-slate-200 pt-6">
-
         <p className="text-center text-sm text-slate-400">
           TheftGuard POS • Version 2.0
         </p>
-
       </div>
-
     </div>
   );
 }
