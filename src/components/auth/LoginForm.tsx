@@ -136,7 +136,7 @@ export default function LoginForm() {
          */
         if (currentAttempt < MAX_LOGIN_ATTEMPTS) {
           setError(
-            `Server is waking up or temporarily unavailable. Retrying... (${currentAttempt}/${MAX_LOGIN_ATTEMPTS})`
+            `Loading... (${currentAttempt}/${MAX_LOGIN_ATTEMPTS})`
           );
 
           await wait(RETRY_DELAY);
