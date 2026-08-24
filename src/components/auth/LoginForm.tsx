@@ -93,12 +93,7 @@ export default function LoginForm() {
         const responseMessage =
           err?.response?.data?.message;
 
-        /*
-         * 401 means the backend received the request
-         * and rejected the credentials.
-         *
-         * Do NOT retry invalid credentials.
-         */
+        // Invalid credentials — don't retry
         if (status === 401) {
           setError(
             responseMessage ||
@@ -111,12 +106,7 @@ export default function LoginForm() {
           return;
         }
 
-        /*
-         * 403 can also mean the account/request was
-         * explicitly rejected by the backend.
-         *
-         * Don't repeatedly send the same request.
-         */
+        // Unauthorized request — don't retry
         if (status === 403) {
           setError(
             responseMessage ||
@@ -129,14 +119,10 @@ export default function LoginForm() {
           return;
         }
 
-        /*
-         * If this wasn't the final attempt,
-         * assume it may be a temporary network,
-         * Render cold-start, timeout, or server problem.
-         */
+        // Retry temporary server/network errors
         if (currentAttempt < MAX_LOGIN_ATTEMPTS) {
           setError(
-            `Loading... (${currentAttempt}/${MAX_LOGIN_ATTEMPTS})`
+            `Connecting to server... (${currentAttempt}/${MAX_LOGIN_ATTEMPTS})`
           );
 
           await wait(RETRY_DELAY);
@@ -144,9 +130,7 @@ export default function LoginForm() {
           continue;
         }
 
-        /*
-         * All attempts failed.
-         */
+        // All attempts failed
         setError(
           "Unable to connect to the server. Please check your internet connection and try again."
         );
@@ -203,7 +187,7 @@ export default function LoginForm() {
           <div className="flex items-center rounded-2xl border border-slate-200 bg-white px-4 shadow-sm transition-all duration-300 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
             <Mail
               size={20}
-              className="text-slate-400"
+              className="shrink-0 text-slate-400"
             />
 
             <input
@@ -216,7 +200,18 @@ export default function LoginForm() {
               required
               autoComplete="email"
               disabled={loading}
-              className="h-14 w-full bg-transparent px-3 outline-none disabled:cursor-not-allowed disabled:opacity-70"
+              className="
+                h-14
+                w-full
+                bg-transparent
+                px-3
+                text-slate-900
+                placeholder:text-slate-400
+                caret-blue-600
+                outline-none
+                disabled:cursor-not-allowed
+                disabled:opacity-70
+              "
             />
           </div>
         </div>
@@ -233,7 +228,7 @@ export default function LoginForm() {
           <div className="flex items-center rounded-2xl border border-slate-200 bg-white px-4 shadow-sm transition-all duration-300 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100">
             <Lock
               size={20}
-              className="text-slate-400"
+              className="shrink-0 text-slate-400"
             />
 
             <input
@@ -250,7 +245,18 @@ export default function LoginForm() {
               required
               autoComplete="current-password"
               disabled={loading}
-              className="h-14 w-full bg-transparent px-3 outline-none disabled:cursor-not-allowed disabled:opacity-70"
+              className="
+                h-14
+                w-full
+                bg-transparent
+                px-3
+                text-slate-900
+                placeholder:text-slate-400
+                caret-blue-600
+                outline-none
+                disabled:cursor-not-allowed
+                disabled:opacity-70
+              "
             />
 
             <button
@@ -259,7 +265,7 @@ export default function LoginForm() {
                 setShowPassword((previous) => !previous)
               }
               disabled={loading}
-              className="text-slate-400 transition hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="shrink-0 text-slate-400 transition hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
               aria-label={
                 showPassword
                   ? "Hide password"
@@ -341,7 +347,6 @@ export default function LoginForm() {
           ) : (
             <>
               Sign In
-
               <ArrowRight size={20} />
             </>
           )}
