@@ -5,6 +5,7 @@ import SettingsHeader from "@/components/settings/SettingsHeader";
 import StoreSettingsForm from "@/components/settings/StoreSettingsForm";
 import ReceiptSettingsForm from "@/components/settings/ReceiptSettingsForm";
 import InventorySettingsForm from "@/components/settings/InventorySettingsForm";
+import CurrencyManagement from "@/components/settings/CurrencyManagement";
 
 import {
   getSettings,
@@ -164,6 +165,8 @@ export default function SettingsPage() {
           saving={saving}
           onSave={handleSave}
         />
+
+        <CurrencyManagement />
 
         {/* Receipt Settings */}
         <ReceiptSettingsForm
