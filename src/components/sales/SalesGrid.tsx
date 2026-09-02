@@ -107,7 +107,7 @@ return (
     <div className="grid gap-6">
       {sales.map((sale) => (
         <SalesCard
-          key={sale.ID}
+          key={sale.id}
           sale={sale}
           onView={handleView}
           onDelete={handleDelete}

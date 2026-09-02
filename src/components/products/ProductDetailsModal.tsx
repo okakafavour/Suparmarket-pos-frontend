@@ -178,7 +178,7 @@ export default function ProductDetailsModal({
 
               <InfoCard
                 title="Product ID"
-                value={product.ID}
+                value={product.id}
               />
 
             </div>

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   ArrowRight,
@@ -13,30 +14,11 @@ import toast from "react-hot-toast";
 import { useExchangeRates } from "@/queries/useExchangeRates";
 import currencyService from "@/services/currency.service";
 
-const currencies = [
-  { code: "NGN", name: "Nigerian Naira", symbol: "₦" },
-  { code: "USD", name: "US Dollar", symbol: "$" },
-  { code: "KES", name: "Kenyan Shilling", symbol: "KSh" },
-  { code: "GBP", name: "British Pound", symbol: "£" },
-  { code: "EUR", name: "Euro", symbol: "€" },
-  { code: "CAD", name: "Canadian Dollar", symbol: "C$" },
-  { code: "AUD", name: "Australian Dollar", symbol: "A$" },
-  { code: "ZAR", name: "South African Rand", symbol: "R" },
-];
-
-function getCurrencyName(code: string) {
-  return (
-    currencies.find((currency) => currency.code === code)?.name ||
-    code
-  );
-}
-
-function getCurrencySymbol(code: string) {
-  return (
-    currencies.find((currency) => currency.code === code)?.symbol ||
-    code
-  );
-}
+import {
+  supportedCurrencies,
+  getCurrencyName,
+  getCurrencySymbol,
+} from "@/lib/currencies";
 
 function formatDate(date?: string | null) {
   if (!date) {
@@ -84,7 +66,10 @@ export default function CurrencyManagement() {
 
       await refetch();
     } catch (error) {
-      console.error("Failed to fetch exchange rate:", error);
+      console.error(
+        "Failed to fetch exchange rate:",
+        error,
+      );
 
       toast.error(
         "Unable to fetch the latest exchange rate.",
@@ -130,7 +115,10 @@ export default function CurrencyManagement() {
 
       await refetch();
     } catch (error) {
-      console.error("Failed to create manual rate:", error);
+      console.error(
+        "Failed to create manual rate:",
+        error,
+      );
 
       toast.error(
         "Unable to create the exchange rate.",
@@ -150,7 +138,10 @@ export default function CurrencyManagement() {
 
       await refetch();
     } catch (error) {
-      console.error("Failed to delete exchange rate:", error);
+      console.error(
+        "Failed to delete exchange rate:",
+        error,
+      );
 
       toast.error(
         "Unable to delete the exchange rate.",
@@ -255,7 +246,7 @@ export default function CurrencyManagement() {
                   focus:border-blue-500
                 "
               >
-                {currencies.map((currency) => (
+                {supportedCurrencies.map((currency) => (
                   <option
                     key={currency.code}
                     value={currency.code}
@@ -297,7 +288,7 @@ export default function CurrencyManagement() {
                   focus:border-blue-500
                 "
               >
-                {currencies.map((currency) => (
+                {supportedCurrencies.map((currency) => (
                   <option
                     key={currency.code}
                     value={currency.code}
@@ -384,7 +375,7 @@ export default function CurrencyManagement() {
                   focus:border-blue-500
                 "
               >
-                {currencies.map((currency) => (
+                {supportedCurrencies.map((currency) => (
                   <option
                     key={currency.code}
                     value={currency.code}
@@ -422,7 +413,7 @@ export default function CurrencyManagement() {
                   focus:border-blue-500
                 "
               >
-                {currencies.map((currency) => (
+                {supportedCurrencies.map((currency) => (
                   <option
                     key={currency.code}
                     value={currency.code}
@@ -674,3 +665,4 @@ export default function CurrencyManagement() {
     </section>
   );
 }
+

@@ -6,6 +6,10 @@ import type {
   UpdateSettingsPayload,
 } from "@/types/settings";
 
+import {
+  supportedCurrencies,
+} from "@/lib/currencies";
+
 interface Props {
   settings: Settings;
   saving: boolean;
@@ -281,18 +285,18 @@ export default function StoreSettingsForm({
               focus:border-blue-500
             "
           >
-            <option value="NGN">
-              Nigerian Naira (₦)
-            </option>
-            <option value="USD">
-              US Dollar ($)
-            </option>
-            <option value="GBP">
-              British Pound (£)
-            </option>
-            <option value="EUR">
-              Euro (€)
-            </option>
+            {supportedCurrencies.map(
+              (currencyOption) => (
+                <option
+                  key={currencyOption.code}
+                  value={currencyOption.code}
+                >
+                  {currencyOption.code} —{" "}
+                  {currencyOption.name} (
+                  {currencyOption.symbol})
+                </option>
+              )
+            )}
           </select>
         </div>
 

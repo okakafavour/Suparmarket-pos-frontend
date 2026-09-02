@@ -42,7 +42,7 @@ export default function DeleteSaleDialog({
   if (!sale) return;
 
   try {
-    await deleteSaleMutation.mutateAsync(sale.ID);
+    await deleteSaleMutation.mutateAsync(sale.id);
     onClose();
   } catch (error) {
     console.error(error);

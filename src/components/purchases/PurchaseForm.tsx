@@ -116,8 +116,8 @@ export default function PurchaseForm({
 
               {products.map((product) => (
                 <option
-                  key={product.ID}
-                  value={product.ID}
+                  key={product.id}
+                  value={product.id}
                   className="bg-[color:var(--surface)] text-[color:var(--text)]"
                 >
                   {product.Name}

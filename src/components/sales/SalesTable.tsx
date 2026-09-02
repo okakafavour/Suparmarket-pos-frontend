@@ -113,7 +113,7 @@ export default function SalesTable({
 
               {rows.map((sale) => (
                 <tr
-                    key={sale.ID}
+                    key={sale.id}
                     className="
                         group
                         transition-all
@@ -153,7 +153,7 @@ export default function SalesTable({
                         </p>
 
                         <p className="text-xs text-[color:var(--text-muted)]">
-                            #{sale.ID.slice(0, 8)}
+                            #{sale.id.slice(0, 8)}
                         </p>
 
                         </div>

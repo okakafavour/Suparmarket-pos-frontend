@@ -3,10 +3,13 @@ import {
   X,
   Search,
   ShoppingCart,
+  Minus,
+  Plus,
 } from "lucide-react";
 
 import { useProducts } from "@/queries/useProducts";
 import { useCreateSale } from "@/queries/useCreateSale";
+import { useCreatePayment } from "@/queries/usePayments";
 
 import type { Product } from "@/types/product";
 
@@ -24,90 +27,429 @@ interface SelectedItem {
   name: string;
   price: number;
   quantity: number;
+  maxQuantity: number;
+}
+
+const supportedCurrencies = [
+  {
+    code: "NGN",
+    name: "Nigerian Naira",
+    symbol: "₦",
+  },
+  {
+    code: "USD",
+    name: "US Dollar",
+    symbol: "$",
+  },
+  {
+    code: "KES",
+    name: "Kenyan Shilling",
+    symbol: "KSh",
+  },
+  {
+    code: "GBP",
+    name: "British Pound",
+    symbol: "£",
+  },
+  {
+    code: "EUR",
+    name: "Euro",
+    symbol: "€",
+  },
+  {
+    code: "CAD",
+    name: "Canadian Dollar",
+    symbol: "C$",
+  },
+  {
+    code: "AUD",
+    name: "Australian Dollar",
+    symbol: "A$",
+  },
+  {
+    code: "ZAR",
+    name: "South African Rand",
+    symbol: "R",
+  },
+];
+
+function getCurrencySymbol(currencyCode: string) {
+  return (
+    supportedCurrencies.find(
+      (currency) => currency.code === currencyCode
+    )?.symbol ?? currencyCode
+  );
+}
+
+function formatMoney(
+  amount: number,
+  currencyCode: string
+) {
+  const symbol = getCurrencySymbol(currencyCode);
+
+  return `${symbol}${amount.toLocaleString(
+    undefined,
+    {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }
+  )}`;
 }
 
 export default function AddSaleModal({
   open,
   onClose,
 }: Props) {
-  const [customerName, setCustomerName] = useState("");
+  const [customerName, setCustomerName] =
+    useState("");
 
   const [paymentMethod, setPaymentMethod] =
     useState<PaymentMethod>("cash");
 
-  const [search, setSearch] = useState("");
+  const [paymentCurrency, setPaymentCurrency] =
+    useState("NGN");
 
-  const [discount, setDiscount] = useState(0);
+  const [search, setSearch] =
+    useState("");
 
-  const [tax, setTax] = useState(0);
+  const [discount, setDiscount] =
+    useState(0);
 
-  const createSaleMutation = useCreateSale();
+  const [tax, setTax] =
+    useState(0);
 
-  const [selectedItems, setSelectedItems] = useState<
-    SelectedItem[]
-  >([]);
+  const [selectedItems, setSelectedItems] =
+    useState<SelectedItem[]>([]);
 
-  const { data } = useProducts({
-    page: 1,
-    limit: 100,
-    search,
-  });
+  const createSaleMutation =
+    useCreateSale();
 
-  const products = data?.products ?? [];
+  const createPaymentMutation =
+    useCreatePayment();
+
+  const { data, isLoading } =
+    useProducts({
+      page: 1,
+      limit: 100,
+      search,
+    });
+
+  const products =
+    data?.products ?? [];
 
   useEffect(() => {
     if (!open) return;
 
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow =
+      "hidden";
 
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow =
+        "";
     };
   }, [open]);
 
-  if (!open) return null;
-
   const subtotal = useMemo(() => {
     return selectedItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
+      (sum, item) =>
+        sum +
+        item.price *
+          item.quantity,
       0
     );
   }, [selectedItems]);
 
-  const total = subtotal - discount + tax;
+  const safeDiscount =
+    Math.min(
+      Math.max(
+        discount || 0,
+        0
+      ),
+      subtotal
+    );
+
+  const safeTax =
+    Math.max(
+      tax || 0,
+      0
+    );
+
+  const total =
+    Math.max(
+      subtotal -
+        safeDiscount +
+        safeTax,
+      0
+    );
+
+  function resetForm() {
+    setCustomerName("");
+    setPaymentMethod("cash");
+    setPaymentCurrency("NGN");
+    setSearch("");
+    setDiscount(0);
+    setTax(0);
+    setSelectedItems([]);
+  }
+
+  function handleClose() {
+    resetForm();
+    onClose();
+  }
+
+  function addProduct(
+    product: Product
+  ) {
+    if (product.Quantity <= 0) {
+      alert(
+        "This product is out of stock."
+      );
+
+      return;
+    }
+
+    setSelectedItems((prev) => {
+      const existing =
+        prev.find(
+          (item) =>
+            item.productId ===
+            product.id
+        );
+
+      if (existing) {
+        if (
+          existing.quantity >=
+          existing.maxQuantity
+        ) {
+          alert(
+            `Only ${existing.maxQuantity} items are available in stock.`
+          );
+
+          return prev;
+        }
+
+        return prev.map(
+          (item) =>
+            item.productId ===
+            product.id
+              ? {
+                  ...item,
+                  quantity:
+                    item.quantity +
+                    1,
+                }
+              : item
+        );
+      }
+
+      return [
+        ...prev,
+        {
+          productId:
+            product.id,
+          name:
+            product.Name,
+          price:
+            product.SellingPrice,
+          quantity: 1,
+          maxQuantity:
+            product.Quantity,
+        },
+      ];
+    });
+  }
+
+  function increaseQuantity(
+    productId: string
+  ) {
+    setSelectedItems(
+      (prev) =>
+        prev.map((item) => {
+          if (
+            item.productId !==
+            productId
+          ) {
+            return item;
+          }
+
+          if (
+            item.quantity >=
+            item.maxQuantity
+          ) {
+            return item;
+          }
+
+          return {
+            ...item,
+            quantity:
+              item.quantity +
+              1,
+          };
+        })
+    );
+  }
+
+  function decreaseQuantity(
+    productId: string
+  ) {
+    setSelectedItems(
+      (prev) =>
+        prev.map((item) =>
+          item.productId ===
+          productId
+            ? {
+                ...item,
+                quantity:
+                  Math.max(
+                    1,
+                    item.quantity -
+                      1
+                  ),
+              }
+            : item
+        )
+    );
+  }
+
+  function removeItem(
+    productId: string
+  ) {
+    setSelectedItems(
+      (prev) =>
+        prev.filter(
+          (item) =>
+            item.productId !==
+            productId
+        )
+    );
+  }
 
   async function handleCreateSale() {
-  if (selectedItems.length === 0) {
-    alert("Please add at least one product.");
-    return;
+    if (
+      selectedItems.length ===
+      0
+    ) {
+      alert(
+        "Please add at least one product."
+      );
+
+      return;
+    }
+
+    if (total <= 0) {
+      alert(
+        "The sale total must be greater than zero."
+      );
+
+      return;
+    }
+
+    try {
+      /*
+       * STEP 1
+       * Create the sale.
+       *
+       * The backend determines
+       * the sale/base currency
+       * from the store settings.
+       */
+
+      const sale =
+        await createSaleMutation.mutateAsync(
+          {
+            customer_name:
+              customerName.trim() ||
+              "Walk-in Customer",
+
+            payment_method:
+              paymentMethod,
+
+            discount:
+              safeDiscount,
+
+            tax:
+              safeTax,
+
+            items:
+              selectedItems.map(
+                (item) => ({
+                  product_id:
+                    item.productId,
+
+                  quantity:
+                    item.quantity,
+                })
+              ),
+          }
+        );
+
+      /*
+       * STEP 2
+       * Create payment.
+       *
+       * The backend calculates
+       * the correct payment amount
+       * and exchange rate.
+       */
+
+      await createPaymentMutation.mutateAsync(
+        {
+          sale_id:
+            sale.id,
+
+          currency:
+            paymentCurrency,
+
+          method:
+            paymentMethod,
+        }
+      );
+
+      /*
+       * STEP 3
+       * Everything succeeded.
+       */
+
+      resetForm();
+
+      onClose();
+
+      alert(
+        "Sale completed successfully!"
+      );
+    } catch (error) {
+      console.error(
+        "SALE/PAYMENT ERROR:",
+        error
+      );
+
+      alert(
+        "Failed to complete sale. Please try again."
+      );
+    }
   }
 
-  try {
-    await createSaleMutation.mutateAsync({
-      customer_name: customerName,
-      payment_method: paymentMethod,
-      discount,
-      tax,
-      items: selectedItems.map((item) => ({
-        product_id: item.productId,
-        quantity: item.quantity,
-      })),
-    });
-
-    onClose();
-  } catch (error) {
-    console.error(error);
-    alert("Failed to create sale.");
+  if (!open) {
+    return null;
   }
-}
+
+  const isProcessing =
+    createSaleMutation.isPending ||
+    createPaymentMutation.isPending;
 
   return (
     <>
       {/* Overlay */}
 
       <div
-        onClick={onClose}
-        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+        onClick={handleClose}
+        className="
+          fixed
+          inset-0
+          z-50
+          bg-black/60
+          backdrop-blur-sm
+        "
       />
 
       {/* Modal */}
@@ -119,8 +461,8 @@ export default function AddSaleModal({
           top-1/2
           z-[60]
           flex
-          h-[92vh]
-          w-full
+          h-[94vh]
+          w-[95vw]
           max-w-7xl
           -translate-x-1/2
           -translate-y-1/2
@@ -133,475 +475,1058 @@ export default function AddSaleModal({
           shadow-2xl
         "
       >
-
         {/* Header */}
 
-        <div className="flex items-center justify-between border-b border-[color:var(--border)] px-8 py-6">
-
+        <div
+          className="
+            flex
+            shrink-0
+            items-center
+            justify-between
+            border-b
+            border-[color:var(--border)]
+            px-6
+            py-4
+            md:px-8
+            md:py-5
+          "
+        >
           <div>
-
-            <h2 className="text-2xl font-bold text-[color:var(--text)]">
+            <h2
+              className="
+                text-xl
+                font-bold
+                text-[color:var(--text)]
+                md:text-2xl
+              "
+            >
               Create New Sale
             </h2>
 
-            <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-              Complete a new customer transaction.
+            <p
+              className="
+                mt-1
+                hidden
+                text-sm
+                text-[color:var(--text-muted)]
+                sm:block
+              "
+            >
+              Add products and complete
+              a customer transaction.
             </p>
-
           </div>
 
           <button
-            onClick={onClose}
-            className="rounded-2xl p-3 transition hover:bg-[color:var(--surface-hover)]"
+            type="button"
+            onClick={handleClose}
+            className="
+              rounded-2xl
+              p-2.5
+              transition
+              hover:bg-[color:var(--surface-hover)]
+            "
           >
             <X
               size={22}
-              className="text-[color:var(--text)]"
+              className="
+                text-[color:var(--text)]
+              "
             />
           </button>
-
         </div>
 
         {/* Body */}
 
-        <div className="grid flex-1 grid-cols-12 overflow-hidden">
-            {/* ===========================
-    LEFT PANEL
-=========================== */}
-
-<div className="col-span-7 flex flex-col border-r border-[color:var(--border)]">
-
-  {/* Customer */}
-
-  <div className="border-b border-[color:var(--border)] p-6">
-
-    <label className="mb-2 block text-sm font-semibold text-[color:var(--text)]">
-      Customer Name
-    </label>
-
-    <input
-      value={customerName}
-      onChange={(e) => setCustomerName(e.target.value)}
-      placeholder="Walk-in Customer"
-      className="
-        w-full
-        rounded-2xl
-        border
-        border-[color:var(--border)]
-        bg-[color:var(--background)]
-        px-4
-        py-3
-        outline-none
-        transition
-        focus:border-emerald-500
-      "
-    />
-
-  </div>
-
-  {/* Search */}
-
-  <div className="border-b border-[color:var(--border)] p-6">
-
-    <div className="relative">
-
-      <Search
-        size={18}
-        className="absolute left-4 top-1/2 -translate-y-1/2 text-[color:var(--text-muted)]"
-      />
-
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search products..."
-        className="
-          w-full
-          rounded-2xl
-          border
-          border-[color:var(--border)]
-          bg-[color:var(--background)]
-          py-3
-          pl-11
-          pr-4
-          outline-none
-          transition
-          focus:border-emerald-500
-        "
-      />
-
-    </div>
-
-  </div>
-
-  {/* Product List */}
-
-  <div className="flex-1 overflow-y-auto p-6">
-
-    <div className="grid gap-4">
-
-      {products.map((product: Product) => (
-
-        <button
-          key={product.ID}
-          type="button"
-          onClick={() => {
-            const exists = selectedItems.find(
-              (item) => item.productId === product.ID
-            );
-
-            if (exists) {
-              setSelectedItems((prev) =>
-                prev.map((item) =>
-                  item.productId === product.ID
-                    ? {
-                        ...item,
-                        quantity: item.quantity + 1,
-                      }
-                    : item
-                )
-              );
-
-              return;
-            }
-
-            setSelectedItems((prev) => [
-              ...prev,
-              {
-                productId: product.ID,
-                name: product.Name,
-                price: product.SellingPrice,
-                quantity: 1,
-              },
-            ]);
-          }}
+        <div
           className="
-            rounded-2xl
-            border
-            border-[color:var(--border)]
-            bg-[color:var(--background)]
-            p-5
-            text-left
-            transition
-            hover:border-emerald-500
-            hover:shadow-md
+            grid
+            min-h-0
+            flex-1
+            grid-cols-12
+            overflow-hidden
           "
         >
-
-          <div className="flex items-center justify-between">
-
-            <div>
-
-              <h3 className="font-semibold text-[color:var(--text)]">
-                {product.Name}
-              </h3>
-
-              <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                SKU: {product.SKU}
-              </p>
-
-            </div>
-
-            <div className="text-right">
-
-              <h3 className="font-bold text-emerald-600">
-                ₦{product.SellingPrice.toLocaleString()}
-              </h3>
-
-              <p className="text-sm text-[color:var(--text-muted)]">
-                Stock {product.Quantity}
-              </p>
-
-            </div>
-
-          </div>
-
-        </button>
-
-      ))}
-
-    </div>
-
-  </div>
-
-</div>
-{/* ===========================
-    RIGHT PANEL
-=========================== */}
-
-<div className="col-span-5 flex flex-col">
-
-  {/* Cart Header */}
-
-  <div className="flex items-center gap-3 border-b border-[color:var(--border)] p-6">
-
-    <ShoppingCart
-      size={22}
-      className="text-emerald-600"
-    />
-
-    <h2 className="text-xl font-bold text-[color:var(--text)]">
-      Shopping Cart
-    </h2>
-
-  </div>
-
-  {/* Cart Items */}
-
-  <div className="flex-1 overflow-y-auto p-6">
-
-    {selectedItems.length === 0 ? (
-
-      <div className="flex h-full flex-col items-center justify-center">
-
-        <ShoppingCart
-          size={64}
-          className="text-slate-300"
-        />
-
-        <h3 className="mt-6 text-xl font-semibold text-[color:var(--text)]">
-          Cart is Empty
-        </h3>
-
-        <p className="mt-2 text-center text-[color:var(--text-muted)]">
-          Select a product from the left to begin this sale.
-        </p>
-
-      </div>
-
-    ) : (
-
-      <div className="space-y-4">
-
-        {selectedItems.map((item) => (
+          {/* LEFT PANEL */}
 
           <div
-            key={item.productId}
-            className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--background)] p-4"
+            className="
+              col-span-7
+              flex
+              min-h-0
+              flex-col
+              border-r
+              border-[color:var(--border)]
+            "
           >
+            {/* Customer */}
 
-            <div className="flex items-start justify-between">
+            <div
+              className="
+                shrink-0
+                border-b
+                border-[color:var(--border)]
+                p-4
+                md:p-5
+              "
+            >
+              <label
+                className="
+                  mb-2
+                  block
+                  text-sm
+                  font-semibold
+                  text-[color:var(--text)]
+                "
+              >
+                Customer Name
+              </label>
 
-              <div>
-
-                <h3 className="font-semibold text-[color:var(--text)]">
-                  {item.name}
-                </h3>
-
-                <p className="mt-1 text-sm text-emerald-600">
-                  ₦{item.price.toLocaleString()}
-                </p>
-
-              </div>
-
-              <button
-                onClick={() =>
-                  setSelectedItems((prev) =>
-                    prev.filter(
-                      (x) => x.productId !== item.productId
-                    )
+              <input
+                value={
+                  customerName
+                }
+                onChange={(e) =>
+                  setCustomerName(
+                    e.target.value
                   )
                 }
-                className="text-red-500"
+                placeholder="Walk-in Customer"
+                className="
+                  w-full
+                  rounded-2xl
+                  border
+                  border-[color:var(--border)]
+                  bg-[color:var(--background)]
+                  px-4
+                  py-2.5
+                  text-[color:var(--text)]
+                  outline-none
+                  transition
+                  focus:border-emerald-500
+                "
+              />
+            </div>
+
+            {/* Search */}
+
+            <div
+              className="
+                shrink-0
+                border-b
+                border-[color:var(--border)]
+                p-4
+                md:p-5
+              "
+            >
+              <div
+                className="
+                  relative
+                "
               >
-                <X size={18} />
-              </button>
+                <Search
+                  size={18}
+                  className="
+                    absolute
+                    left-4
+                    top-1/2
+                    -translate-y-1/2
+                    text-[color:var(--text-muted)]
+                  "
+                />
 
-            </div>
-
-            <div className="mt-4 flex items-center justify-between">
-
-              <div className="flex items-center gap-3">
-
-                <button
-                  onClick={() =>
-                    setSelectedItems((prev) =>
-                      prev
-                        .map((x) =>
-                          x.productId === item.productId
-                            ? {
-                                ...x,
-                                quantity: Math.max(
-                                  1,
-                                  x.quantity - 1
-                                ),
-                              }
-                            : x
-                        )
+                <input
+                  value={search}
+                  onChange={(e) =>
+                    setSearch(
+                      e.target.value
                     )
                   }
-                  className="h-9 w-9 rounded-xl border"
-                >
-                  -
-                </button>
-
-                <span className="w-8 text-center font-bold">
-                  {item.quantity}
-                </span>
-
-                <button
-                  onClick={() =>
-                    setSelectedItems((prev) =>
-                      prev.map((x) =>
-                        x.productId === item.productId
-                          ? {
-                              ...x,
-                              quantity: x.quantity + 1,
-                            }
-                          : x
-                      )
-                    )
-                  }
-                  className="h-9 w-9 rounded-xl border"
-                >
-                  +
-                </button>
-
+                  placeholder="Search products..."
+                  className="
+                    w-full
+                    rounded-2xl
+                    border
+                    border-[color:var(--border)]
+                    bg-[color:var(--background)]
+                    py-2.5
+                    pl-11
+                    pr-4
+                    text-[color:var(--text)]
+                    outline-none
+                    transition
+                    focus:border-emerald-500
+                  "
+                />
               </div>
-
-              <h3 className="font-bold text-emerald-600">
-                ₦{(
-                  item.quantity * item.price
-                ).toLocaleString()}
-              </h3>
-
             </div>
 
+            {/* Products */}
+
+            <div
+              className="
+                min-h-0
+                flex-1
+                overflow-y-auto
+                p-4
+                md:p-5
+              "
+            >
+              {isLoading ? (
+                <div
+                  className="
+                    flex
+                    h-full
+                    items-center
+                    justify-center
+                    text-[color:var(--text-muted)]
+                  "
+                >
+                  Loading products...
+                </div>
+              ) : products.length ===
+                0 ? (
+                <div
+                  className="
+                    flex
+                    h-full
+                    items-center
+                    justify-center
+                    text-[color:var(--text-muted)]
+                  "
+                >
+                  No products found.
+                </div>
+              ) : (
+                <div
+                  className="
+                    grid
+                    gap-3
+                  "
+                >
+                  {products.map(
+                    (
+                      product: Product
+                    ) => {
+                      const outOfStock =
+                        product.Quantity <=
+                        0;
+
+                      return (
+                        <button
+                          key={
+                            product.id
+                          }
+                          type="button"
+                          disabled={
+                            outOfStock
+                          }
+                          onClick={() =>
+                            addProduct(
+                              product
+                            )
+                          }
+                          className={`
+                            rounded-2xl
+                            border
+                            border-[color:var(--border)]
+                            bg-[color:var(--background)]
+                            p-4
+                            text-left
+                            transition
+                            ${
+                              outOfStock
+                                ? "cursor-not-allowed opacity-50"
+                                : "hover:border-emerald-500 hover:shadow-md"
+                            }
+                          `}
+                        >
+                          <div
+                            className="
+                              flex
+                              items-center
+                              justify-between
+                              gap-4
+                            "
+                          >
+                            <div
+                              className="
+                                min-w-0
+                              "
+                            >
+                              <h3
+                                className="
+                                  truncate
+                                  font-semibold
+                                  text-[color:var(--text)]
+                                "
+                              >
+                                {
+                                  product.Name
+                                }
+                              </h3>
+
+                              <p
+                                className="
+                                  mt-1
+                                  text-sm
+                                  text-[color:var(--text-muted)]
+                                "
+                              >
+                                SKU:{" "}
+                                {
+                                  product.SKU
+                                }
+                              </p>
+                            </div>
+
+                            <div
+                              className="
+                                shrink-0
+                                text-right
+                              "
+                            >
+                              <h3
+                                className="
+                                  font-bold
+                                  text-emerald-600
+                                "
+                              >
+                                {formatMoney(
+                                  product.SellingPrice,
+                                  paymentCurrency
+                                )}
+                              </h3>
+
+                              <p
+                                className="
+                                  text-sm
+                                  text-[color:var(--text-muted)]
+                                "
+                              >
+                                {outOfStock
+                                  ? "Out of stock"
+                                  : `Stock ${product.Quantity}`}
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    }
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-        ))}
+          {/* RIGHT PANEL */}
 
+          <div
+            className="
+              col-span-5
+              flex
+              min-h-0
+              flex-col
+            "
+          >
+            {/* Cart Header */}
+
+            <div
+              className="
+                flex
+                shrink-0
+                items-center
+                gap-3
+                border-b
+                border-[color:var(--border)]
+                p-4
+                md:p-5
+              "
+            >
+              <ShoppingCart
+                size={21}
+                className="
+                  text-emerald-600
+                "
+              />
+
+              <h2
+                className="
+                  text-lg
+                  font-bold
+                  text-[color:var(--text)]
+                  md:text-xl
+                "
+              >
+                Shopping Cart
+              </h2>
+
+              {selectedItems.length >
+                0 && (
+                <span
+                  className="
+                    ml-auto
+                    rounded-full
+                    bg-emerald-100
+                    px-3
+                    py-1
+                    text-xs
+                    font-semibold
+                    text-emerald-600
+                  "
+                >
+                  {selectedItems.reduce(
+                    (
+                      sum,
+                      item
+                    ) =>
+                      sum +
+                      item.quantity,
+                    0
+                  )}{" "}
+                  items
+                </span>
+              )}
+            </div>
+
+            {/* Cart Items */}
+
+            <div
+              className="
+                min-h-0
+                flex-1
+                overflow-y-auto
+                p-4
+                md:p-5
+              "
+            >
+              {selectedItems.length ===
+              0 ? (
+                <div
+                  className="
+                    flex
+                    h-full
+                    flex-col
+                    items-center
+                    justify-center
+                  "
+                >
+                  <ShoppingCart
+                    size={52}
+                    className="
+                      text-slate-300
+                    "
+                  />
+
+                  <h3
+                    className="
+                      mt-4
+                      text-lg
+                      font-semibold
+                      text-[color:var(--text)]
+                    "
+                  >
+                    Cart is Empty
+                  </h3>
+
+                  <p
+                    className="
+                      mt-2
+                      max-w-xs
+                      text-center
+                      text-sm
+                      text-[color:var(--text-muted)]
+                    "
+                  >
+                    Select a product
+                    from the left to
+                    begin this sale.
+                  </p>
+                </div>
+              ) : (
+                <div
+                  className="
+                    space-y-3
+                  "
+                >
+                  {selectedItems.map(
+                    (item) => (
+                      <div
+                        key={
+                          item.productId
+                        }
+                        className="
+                          rounded-2xl
+                          border
+                          border-[color:var(--border)]
+                          bg-[color:var(--background)]
+                          p-3.5
+                        "
+                      >
+                        <div
+                          className="
+                            flex
+                            items-start
+                            justify-between
+                            gap-3
+                          "
+                        >
+                          <div
+                            className="
+                              min-w-0
+                            "
+                          >
+                            <h3
+                              className="
+                                truncate
+                                font-semibold
+                                text-[color:var(--text)]
+                              "
+                            >
+                              {
+                                item.name
+                              }
+                            </h3>
+
+                            <p
+                              className="
+                                mt-1
+                                text-sm
+                                text-emerald-600
+                              "
+                            >
+                              {formatMoney(
+                                item.price,
+                                paymentCurrency
+                              )}
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removeItem(
+                                item.productId
+                              )
+                            }
+                            className="
+                              shrink-0
+                              rounded-lg
+                              p-1
+                              text-red-500
+                              transition
+                              hover:bg-red-50
+                            "
+                          >
+                            <X
+                              size={17}
+                            />
+                          </button>
+                        </div>
+
+                        {/* Quantity Controls */}
+
+                        <div
+                          className="
+                            mt-3
+                            flex
+                            items-center
+                            justify-between
+                          "
+                        >
+                          <div
+                            className="
+                              flex
+                              items-center
+                              gap-2.5
+                            "
+                          >
+                            <button
+                              type="button"
+                              onClick={() =>
+                                decreaseQuantity(
+                                  item.productId
+                                )
+                              }
+                              className="
+                                flex
+                                h-8
+                                w-8
+                                items-center
+                                justify-center
+                                rounded-xl
+                                border
+                                border-[color:var(--border)]
+                                text-[color:var(--text)]
+                                transition
+                                hover:bg-[color:var(--surface-hover)]
+                              "
+                            >
+                              <Minus
+                                size={
+                                  15
+                                }
+                              />
+                            </button>
+
+                            <span
+                              className="
+                                w-7
+                                text-center
+                                text-sm
+                                font-bold
+                                text-[color:var(--text)]
+                              "
+                            >
+                              {
+                                item.quantity
+                              }
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                increaseQuantity(
+                                  item.productId
+                                )
+                              }
+                              disabled={
+                                item.quantity >=
+                                item.maxQuantity
+                              }
+                              className="
+                                flex
+                                h-8
+                                w-8
+                                items-center
+                                justify-center
+                                rounded-xl
+                                border
+                                border-[color:var(--border)]
+                                text-[color:var(--text)]
+                                transition
+                                hover:bg-[color:var(--surface-hover)]
+                                disabled:cursor-not-allowed
+                                disabled:opacity-40
+                              "
+                            >
+                              <Plus
+                                size={
+                                  15
+                                }
+                              />
+                            </button>
+                          </div>
+
+                          <h3
+                            className="
+                              text-sm
+                              font-bold
+                              text-emerald-600
+                            "
+                          >
+                            {formatMoney(
+                              item.quantity *
+                                item.price,
+                              paymentCurrency
+                            )}
+                          </h3>
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Summary */}
+
+            <div
+              className="
+                shrink-0
+                space-y-3
+                border-t
+                border-[color:var(--border)]
+                bg-[color:var(--surface)]
+                p-4
+              "
+            >
+              {/* Payment Method */}
+
+              <div>
+                <label
+                  className="
+                    mb-1.5
+                    block
+                    text-xs
+                    font-medium
+                    text-[color:var(--text)]
+                  "
+                >
+                  Payment Method
+                </label>
+
+                <select
+                  value={
+                    paymentMethod
+                  }
+                  onChange={(e) =>
+                    setPaymentMethod(
+                      e.target
+                        .value as PaymentMethod
+                    )
+                  }
+                  className="
+                    w-full
+                    rounded-xl
+                    border
+                    border-[color:var(--border)]
+                    bg-[color:var(--background)]
+                    px-3
+                    py-2.5
+                    text-sm
+                    text-[color:var(--text)]
+                    outline-none
+                    focus:border-emerald-500
+                  "
+                >
+                  <option value="cash">
+                    Cash
+                  </option>
+
+                  <option value="card">
+                    Card
+                  </option>
+
+                  <option value="transfer">
+                    Transfer
+                  </option>
+
+                  <option value="mobile_money">
+                    Mobile Money
+                  </option>
+                </select>
+              </div>
+
+              {/* Payment Currency */}
+
+              <div>
+                <label
+                  className="
+                    mb-1.5
+                    block
+                    text-xs
+                    font-medium
+                    text-[color:var(--text)]
+                  "
+                >
+                  Payment Currency
+                </label>
+
+                <select
+                  value={
+                    paymentCurrency
+                  }
+                  onChange={(e) =>
+                    setPaymentCurrency(
+                      e.target.value
+                    )
+                  }
+                  className="
+                    w-full
+                    rounded-xl
+                    border
+                    border-[color:var(--border)]
+                    bg-[color:var(--background)]
+                    px-3
+                    py-2.5
+                    text-sm
+                    text-[color:var(--text)]
+                    outline-none
+                    focus:border-emerald-500
+                  "
+                >
+                  {supportedCurrencies.map(
+                    (currency) => (
+                      <option
+                        key={
+                          currency.code
+                        }
+                        value={
+                          currency.code
+                        }
+                      >
+                        {
+                          currency.code
+                        }{" "}
+                        —{" "}
+                        {
+                          currency.name
+                        }{" "}
+                        (
+                        {
+                          currency.symbol
+                        }
+                        )
+                      </option>
+                    )
+                  )}
+                </select>
+              </div>
+
+              {/* Discount and Tax */}
+
+              <div
+                className="
+                  grid
+                  grid-cols-2
+                  gap-3
+                "
+              >
+                <div>
+                  <label
+                    className="
+                      mb-1.5
+                      block
+                      text-xs
+                      font-medium
+                      text-[color:var(--text)]
+                    "
+                  >
+                    Discount
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    value={
+                      discount
+                    }
+                    onChange={(e) =>
+                      setDiscount(
+                        Number(
+                          e.target
+                            .value
+                        )
+                      )
+                    }
+                    className="
+                      w-full
+                      rounded-xl
+                      border
+                      border-[color:var(--border)]
+                      bg-[color:var(--background)]
+                      px-3
+                      py-2.5
+                      text-sm
+                      text-[color:var(--text)]
+                      outline-none
+                      focus:border-emerald-500
+                    "
+                  />
+                </div>
+
+                <div>
+                  <label
+                    className="
+                      mb-1.5
+                      block
+                      text-xs
+                      font-medium
+                      text-[color:var(--text)]
+                    "
+                  >
+                    Tax
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    value={tax}
+                    onChange={(e) =>
+                      setTax(
+                        Number(
+                          e.target
+                            .value
+                        )
+                      )
+                    }
+                    className="
+                      w-full
+                      rounded-xl
+                      border
+                      border-[color:var(--border)]
+                      bg-[color:var(--background)]
+                      px-3
+                      py-2.5
+                      text-sm
+                      text-[color:var(--text)]
+                      outline-none
+                      focus:border-emerald-500
+                    "
+                  />
+                </div>
+              </div>
+
+              {/* Totals */}
+
+              <div
+                className="
+                  space-y-2
+                  border-t
+                  border-[color:var(--border)]
+                  pt-3
+                "
+              >
+                <div
+                  className="
+                    flex
+                    justify-between
+                    text-sm
+                  "
+                >
+                  <span
+                    className="
+                      text-[color:var(--text-muted)]
+                    "
+                  >
+                    Subtotal
+                  </span>
+
+                  <strong
+                    className="
+                      text-[color:var(--text)]
+                    "
+                  >
+                    {formatMoney(
+                      subtotal,
+                      paymentCurrency
+                    )}
+                  </strong>
+                </div>
+
+                <div
+                  className="
+                    flex
+                    justify-between
+                    text-sm
+                  "
+                >
+                  <span
+                    className="
+                      text-[color:var(--text-muted)]
+                    "
+                  >
+                    Discount
+                  </span>
+
+                  <strong
+                    className="
+                      text-red-500
+                    "
+                  >
+                    -{" "}
+                    {formatMoney(
+                      safeDiscount,
+                      paymentCurrency
+                    )}
+                  </strong>
+                </div>
+
+                <div
+                  className="
+                    flex
+                    justify-between
+                    text-sm
+                  "
+                >
+                  <span
+                    className="
+                      text-[color:var(--text-muted)]
+                    "
+                  >
+                    Tax
+                  </span>
+
+                  <strong
+                    className="
+                      text-[color:var(--text)]
+                    "
+                  >
+                    {formatMoney(
+                      safeTax,
+                      paymentCurrency
+                    )}
+                  </strong>
+                </div>
+
+                <div
+                  className="
+                    flex
+                    justify-between
+                    border-t
+                    border-[color:var(--border)]
+                    pt-3
+                    text-lg
+                    font-bold
+                  "
+                >
+                  <span
+                    className="
+                      text-[color:var(--text)]
+                    "
+                  >
+                    Total
+                  </span>
+
+                  <span
+                    className="
+                      text-emerald-600
+                    "
+                  >
+                    {formatMoney(
+                      total,
+                      paymentCurrency
+                    )}
+                  </span>
+                </div>
+              </div>
+
+              {/* Complete Sale Button */}
+
+              <button
+                type="button"
+                onClick={
+                  handleCreateSale
+                }
+                disabled={
+                  isProcessing ||
+                  selectedItems.length ===
+                    0
+                }
+                className="
+                  mt-2
+                  w-full
+                  rounded-xl
+                  bg-emerald-600
+                  py-3
+                  text-sm
+                  font-semibold
+                  text-white
+                  transition
+                  hover:bg-emerald-700
+                  disabled:cursor-not-allowed
+                  disabled:opacity-60
+                "
+              >
+                {isProcessing
+                  ? "Processing..."
+                  : "Complete Sale"}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-
-    )}
-
-  </div>
-
-  {/* Summary */}
-
-  <div className="border-t border-[color:var(--border)] p-6 space-y-4">
-
-    <div>
-
-      <label className="mb-2 block text-sm font-medium">
-        Payment Method
-      </label>
-
-      <select
-        value={paymentMethod}
-        onChange={(e) =>
-          setPaymentMethod(
-            e.target.value as PaymentMethod
-          )
-        }
-        className="w-full rounded-2xl border px-4 py-3"
-      >
-        <option value="cash">Cash</option>
-        <option value="card">Card</option>
-        <option value="transfer">Transfer</option>
-        <option value="mobile_money">
-          Mobile Money
-        </option>
-      </select>
-
-    </div>
-
-    <div>
-
-      <label className="mb-2 block text-sm">
-        Discount
-      </label>
-
-      <input
-        type="number"
-        value={discount}
-        onChange={(e) =>
-          setDiscount(Number(e.target.value))
-        }
-        className="w-full rounded-2xl border px-4 py-3"
-      />
-
-    </div>
-
-    <div>
-
-      <label className="mb-2 block text-sm">
-        Tax
-      </label>
-
-      <input
-        type="number"
-        value={tax}
-        onChange={(e) =>
-          setTax(Number(e.target.value))
-        }
-        className="w-full rounded-2xl border px-4 py-3"
-      />
-
-    </div>
-
-    <div className="space-y-3 border-t pt-4">
-
-      <div className="flex justify-between">
-
-        <span>Subtotal</span>
-
-        <strong>
-          ₦{subtotal.toLocaleString()}
-        </strong>
-
-      </div>
-
-      <div className="flex justify-between">
-
-        <span>Discount</span>
-
-        <strong>
-          - ₦{discount.toLocaleString()}
-        </strong>
-
-      </div>
-
-      <div className="flex justify-between">
-
-        <span>Tax</span>
-
-        <strong>
-          ₦{tax.toLocaleString()}
-        </strong>
-
-      </div>
-
-      <div className="flex justify-between border-t pt-4 text-xl font-bold">
-
-        <span>Total</span>
-
-        <span className="text-emerald-600">
-          ₦{total.toLocaleString()}
-        </span>
-
-      </div>
-
-    </div>
-
-    <button
-        onClick={handleCreateSale}
-        disabled={createSaleMutation.isPending}
-        className="mt-6 w-full rounded-2xl bg-emerald-600 py-4 font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
-        >
-        {createSaleMutation.isPending
-            ? "Processing..."
-            : "Complete Sale"
-        }
-    </button>
-
-  </div>
-
-</div>
-
-</div>
-
-</div>
-
-</>
-);
+    </>
+  );
 }

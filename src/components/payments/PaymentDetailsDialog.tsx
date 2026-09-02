@@ -273,7 +273,7 @@ export default function PaymentDetailsDialog({
 
                         {payment.sale.Items.map((item) => (
 
-                          <tr key={item.ID}>
+                          <tr key={item.id}>
 
                             <td className="px-4 py-3">
                               {item.Product?.Name ?? "-"}

@@ -1,3 +1,4 @@
+
 import {
   ShoppingBag,
   Wallet,
@@ -6,6 +7,33 @@ import {
 } from "lucide-react";
 
 import { useSalesDashboard } from "@/queries/useSalesDashboard";
+
+function getCurrencySymbol(currency: string) {
+  const symbols: Record<string, string> = {
+    NGN: "₦",
+    USD: "$",
+    GBP: "£",
+    EUR: "€",
+    KES: "KSh",
+    CAD: "C$",
+    AUD: "A$",
+    ZAR: "R",
+  };
+
+  return symbols[currency.toUpperCase()] ?? currency;
+}
+
+function formatMoney(
+  amount: number,
+  currency: string
+) {
+  const symbol = getCurrencySymbol(currency);
+
+  return `${symbol}${amount.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
 
 export default function SalesStats() {
   const {
@@ -35,6 +63,10 @@ export default function SalesStats() {
     );
   }
 
+  // The backend has already converted all dashboard
+  // amounts into the store's reporting currency.
+  const currency = data.currency;
+
   const stats = [
     {
       title: "Today's Sales",
@@ -45,10 +77,10 @@ export default function SalesStats() {
     },
     {
       title: "Today's Revenue",
-      value: `₦${data.todays_revenue.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`,
+      value: formatMoney(
+        data.todays_revenue,
+        currency
+      ),
       icon: Wallet,
       color: "text-emerald-600",
       bg: "bg-emerald-100 dark:bg-emerald-500/20",
@@ -62,10 +94,10 @@ export default function SalesStats() {
     },
     {
       title: "Average Sale",
-      value: `₦${data.average_sale.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`,
+      value: formatMoney(
+        data.average_sale,
+        currency
+      ),
       icon: TrendingUp,
       color: "text-orange-600",
       bg: "bg-orange-100 dark:bg-orange-500/20",

@@ -59,7 +59,7 @@ export default function EditProductModal({
 
   mutate(
     {
-      id: product.ID,
+      id: product.id,
       payload: {
         name: values.Name,
         description: values.Description,

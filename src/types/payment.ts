@@ -19,7 +19,20 @@ export interface Payment {
 
   sale?: Sale;
 
+  // Amount customer actually paid
   amount: number;
+
+  // Currency customer paid with
+  currency: string;
+
+  // Original sale amount
+  base_amount: number;
+
+  // Original sale currency
+  base_currency: string;
+
+  // Exchange rate used
+  exchange_rate: number;
 
   method: PaymentMethod;
 
@@ -37,7 +50,8 @@ export interface Payment {
 export interface CreatePaymentPayload {
   sale_id: string;
 
-  amount: number;
+  // Currency customer wants to pay with
+  currency: string;
 
   method: PaymentMethod;
 

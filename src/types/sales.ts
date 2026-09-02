@@ -65,9 +65,9 @@ export interface SaleProduct {
 // ==========================
 
 export interface SaleItem {
-  ID: string;
+  id: string;
 
-  SaleID: string;
+  sale_id: string;
 
   ProductID: string;
 
@@ -95,7 +95,7 @@ export type SaleStatus =
   | "paid";
 
 export interface Sale {
-  ID: string;
+  id: string;
 
   CreatedAt: string;
 
@@ -140,6 +140,7 @@ export interface SalesDashboard {
   todays_revenue: number;
 
   todays_sales: number;
+  currency: string;
 }
 
 // ==========================

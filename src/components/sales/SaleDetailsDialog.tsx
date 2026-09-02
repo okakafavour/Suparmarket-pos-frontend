@@ -185,7 +185,7 @@ export default function SaleDetailsDialog({
 
                   {sale.Items.map((item: SaleItem) => (
                     <tr
-                      key={item.ID}
+                      key={item.id}
                       className="border-t border-[color:var(--border)]"
                     >
 

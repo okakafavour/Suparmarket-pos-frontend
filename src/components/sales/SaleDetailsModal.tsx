@@ -234,7 +234,7 @@ export default function SaleDetailsModal({
                   {sale.Items.map((item) => (
 
                     <tr
-                      key={item.ID}
+                      key={item.id}
                       className="border-t border-[color:var(--border)]"
                     >
 

@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+
 import DashboardLayout from "@/layouts/DashboardLayout";
 
 import SettingsHeader from "@/components/settings/SettingsHeader";
@@ -7,51 +9,28 @@ import ReceiptSettingsForm from "@/components/settings/ReceiptSettingsForm";
 import InventorySettingsForm from "@/components/settings/InventorySettingsForm";
 import CurrencyManagement from "@/components/settings/CurrencyManagement";
 
-import {
-  getSettings,
-  updateSettings,
-} from "@/services/settings.service";
+import { updateSettings } from "@/services/settings.service";
+import { useSettings } from "@/queries/useSettings";
 
 import type {
-  Settings,
   UpdateSettingsPayload,
 } from "@/types/settings";
 
 export default function SettingsPage() {
-  const [settings, setSettings] =
-    useState<Settings | null>(null);
+  const {
+    data: settings,
+    isLoading: loading,
+    isError,
+    refetch,
+  } = useSettings();
 
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+
   const [saving, setSaving] = useState(false);
 
   const [message, setMessage] = useState("");
+
   const [error, setError] = useState("");
-
-  async function loadSettings() {
-    try {
-      setLoading(true);
-      setError("");
-
-      const data = await getSettings();
-
-      setSettings(data);
-    } catch (err) {
-      console.error(
-        "Failed to load settings:",
-        err
-      );
-
-      setError(
-        "Unable to load store settings. Please try again."
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    loadSettings();
-  }, []);
 
   async function handleSave(
     payload: UpdateSettingsPayload
@@ -61,9 +40,16 @@ export default function SettingsPage() {
       setError("");
       setMessage("");
 
-      const updated = await updateSettings(payload);
+      const updated = await updateSettings(
+        payload
+      );
 
-      setSettings(updated);
+      // Update the shared React Query cache
+      // immediately after saving.
+      queryClient.setQueryData(
+        ["settings"],
+        updated
+      );
 
       setMessage(
         "Settings updated successfully."
@@ -86,6 +72,9 @@ export default function SettingsPage() {
     }
   }
 
+  /*
+   * Loading state
+   */
   if (loading) {
     return (
       <DashboardLayout>
@@ -102,7 +91,10 @@ export default function SettingsPage() {
     );
   }
 
-  if (!settings) {
+  /*
+   * Error / no settings state
+   */
+  if (isError || !settings) {
     return (
       <DashboardLayout>
         <div className="flex min-h-[60vh] items-center justify-center px-4">
@@ -118,7 +110,7 @@ export default function SettingsPage() {
 
             <button
               type="button"
-              onClick={loadSettings}
+              onClick={() => refetch()}
               className="mt-5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
               Try Again
@@ -132,6 +124,7 @@ export default function SettingsPage() {
   return (
     <DashboardLayout>
       <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+
         {/* Header */}
         <SettingsHeader />
 
@@ -166,6 +159,7 @@ export default function SettingsPage() {
           onSave={handleSave}
         />
 
+        {/* Currency Management */}
         <CurrencyManagement />
 
         {/* Receipt Settings */}
@@ -181,6 +175,7 @@ export default function SettingsPage() {
           saving={saving}
           onSave={handleSave}
         />
+
       </div>
     </DashboardLayout>
   );

@@ -21,7 +21,7 @@ export default function DeleteProductDialog({
  function handleDelete() {
   if (!product) return;
 
-  mutate(product.ID, {
+  mutate(product.id, {
     onSuccess() {
       onClose();
     },

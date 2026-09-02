@@ -9,7 +9,7 @@ import {
   Users,
   Truck,
   ClipboardList,
-  CreditCard,
+  // CreditCard,
   BarChart3,
   Shield,
   Settings,
@@ -84,12 +84,12 @@ const menu: MenuItem[] = [
     roles: ["admin", "manager"],
   },
 
-  {
-    title: "Payments",
-    icon: CreditCard,
-    path: "/payments",
-    roles: ["admin", "manager", "cashier"],
-  },
+  // {
+  //   title: "Payments",
+  //   icon: CreditCard,
+  //   path: "/payments",
+  //   roles: ["admin", "manager", "cashier"],
+  // },
 
   {
     title: "Reports",

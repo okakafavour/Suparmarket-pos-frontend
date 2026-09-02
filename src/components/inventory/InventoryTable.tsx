@@ -155,7 +155,7 @@ function handleDelete(product: Product) {
             <tbody>
               {products.map((product) => (
                 <InventoryTableRow
-                  key={product.ID}
+                  key={product.id}
                   product={product}
                   onView={handleView}
                   onEdit={handleEdit}
