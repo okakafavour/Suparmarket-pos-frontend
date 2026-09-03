@@ -37,19 +37,47 @@ export default function SettingsPage() {
   ) {
     try {
       setSaving(true);
+
       setError("");
       setMessage("");
 
-      const updated = await updateSettings(
-        payload
-      );
+      const updatedSettings =
+        await updateSettings(payload);
 
-      // Update the shared React Query cache
-      // immediately after saving.
+      /*
+       * =====================================================
+       * UPDATE SETTINGS CACHE IMMEDIATELY
+       * =====================================================
+       */
+
       queryClient.setQueryData(
         ["settings"],
-        updated
+        updatedSettings
       );
+
+      /*
+       * =====================================================
+       * REFRESH ALL DATA THAT DEPENDS ON CURRENCY
+       * =====================================================
+       */
+
+      await queryClient.invalidateQueries({
+        queryKey: ["settings"],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["sales-dashboard"],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["sales-analytics"],
+      });
+
+      /*
+       * =====================================================
+       * SUCCESS MESSAGE
+       * =====================================================
+       */
 
       setMessage(
         "Settings updated successfully."
@@ -58,6 +86,7 @@ export default function SettingsPage() {
       setTimeout(() => {
         setMessage("");
       }, 3000);
+
     } catch (err) {
       console.error(
         "Failed to update settings:",
@@ -67,38 +96,52 @@ export default function SettingsPage() {
       setError(
         "Failed to update settings. Please try again."
       );
+
     } finally {
       setSaving(false);
     }
   }
 
   /*
-   * Loading state
+   * =====================================================
+   * LOADING
+   * =====================================================
    */
+
   if (loading) {
     return (
       <DashboardLayout>
         <div className="flex min-h-[60vh] items-center justify-center">
+
           <div className="text-center">
+
             <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
 
             <p className="mt-4 text-sm text-[color:var(--text-muted)]">
               Loading settings...
             </p>
+
           </div>
+
         </div>
       </DashboardLayout>
     );
   }
 
   /*
-   * Error / no settings state
+   * =====================================================
+   * ERROR
+   * =====================================================
    */
+
   if (isError || !settings) {
     return (
       <DashboardLayout>
+
         <div className="flex min-h-[60vh] items-center justify-center px-4">
+
           <div className="w-full max-w-md rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-8 text-center">
+
             <h2 className="text-xl font-bold">
               Unable to load settings
             </h2>
@@ -115,23 +158,42 @@ export default function SettingsPage() {
             >
               Try Again
             </button>
+
           </div>
+
         </div>
+
       </DashboardLayout>
     );
   }
 
+  /*
+   * =====================================================
+   * PAGE
+   * =====================================================
+   */
+
   return (
     <DashboardLayout>
+
       <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
 
-        {/* Header */}
+        {/* ================================================= */}
+        {/* HEADER */}
+        {/* ================================================= */}
+
         <SettingsHeader />
 
-        {/* Success message */}
+        {/* ================================================= */}
+        {/* SUCCESS MESSAGE */}
+        {/* ================================================= */}
+
         {message && (
+
           <div className="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 dark:border-green-900 dark:bg-green-950/20">
+
             <div className="flex items-center gap-3">
+
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400">
                 ✓
               </div>
@@ -139,37 +201,59 @@ export default function SettingsPage() {
               <p className="text-sm font-medium text-green-700 dark:text-green-400">
                 {message}
               </p>
+
             </div>
+
           </div>
+
         )}
 
-        {/* Error message */}
+        {/* ================================================= */}
+        {/* ERROR MESSAGE */}
+        {/* ================================================= */}
+
         {error && !message && (
+
           <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 dark:border-red-900 dark:bg-red-950/20">
+
             <p className="text-sm font-medium text-red-700 dark:text-red-400">
               {error}
             </p>
+
           </div>
+
         )}
 
-        {/* Store Information */}
+        {/* ================================================= */}
+        {/* STORE SETTINGS */}
+        {/* ================================================= */}
+
         <StoreSettingsForm
           settings={settings}
           saving={saving}
           onSave={handleSave}
         />
 
-        {/* Currency Management */}
+        {/* ================================================= */}
+        {/* CURRENCY MANAGEMENT */}
+        {/* ================================================= */}
+
         <CurrencyManagement />
 
-        {/* Receipt Settings */}
+        {/* ================================================= */}
+        {/* RECEIPT SETTINGS */}
+        {/* ================================================= */}
+
         <ReceiptSettingsForm
           settings={settings}
           saving={saving}
           onSave={handleSave}
         />
 
-        {/* Inventory Settings */}
+        {/* ================================================= */}
+        {/* INVENTORY SETTINGS */}
+        {/* ================================================= */}
+
         <InventorySettingsForm
           settings={settings}
           saving={saving}
@@ -177,6 +261,7 @@ export default function SettingsPage() {
         />
 
       </div>
+
     </DashboardLayout>
   );
 }

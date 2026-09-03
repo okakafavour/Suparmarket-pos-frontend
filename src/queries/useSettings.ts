@@ -6,6 +6,12 @@ export function useSettings() {
   return useQuery({
     queryKey: ["settings"],
     queryFn: getSettings,
-    staleTime: 5 * 60 * 1000,
+
+    // Settings should always stay fresh because
+    // currency changes affect the whole application.
+    staleTime: 0,
+
+    // Automatically refresh settings when needed.
+    refetchOnWindowFocus: true,
   });
 }

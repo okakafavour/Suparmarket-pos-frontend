@@ -310,10 +310,10 @@ export default function AddProductModal({
 
                   {suppliers.map((supplier: any) => (
                     <option
-                      key={supplier.ID}
-                      value={supplier.ID}
+                      key={supplier.id}
+                      value={supplier.id}
                     >
-                      {supplier.Name}
+                      {supplier.name}
                     </option>
                   ))}
                 </select>
